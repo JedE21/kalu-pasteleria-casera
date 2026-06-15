@@ -145,7 +145,15 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
                   {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </Select>
               ) : (
-                <Input name={field.name} type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'} required={field.required} readOnly={field.readonly} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')} />
+                <Input
+                  name={field.name}
+                  type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'}
+                  step={field.type === 'number' ? '0.01' : undefined}
+                  inputMode={field.type === 'number' ? 'decimal' : undefined}
+                  required={field.required}
+                  readOnly={field.readonly}
+                  defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')}
+                />
               )}
             </Field>
           ))}
