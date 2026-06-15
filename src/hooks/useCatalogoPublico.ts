@@ -13,6 +13,7 @@ function categoryIdFromName(nombre: string): KaluCategoryId | null {
   if (value.includes('1 kg')) return 'tortas-kilo';
   if (value.includes('personalizada')) return 'personalizadas';
   if (value.includes('bocadito')) return 'bocaditos';
+  if (value.includes('keke')) return 'kekes';
   return null;
 }
 

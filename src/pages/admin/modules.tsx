@@ -16,6 +16,7 @@ import { crearUsuario, editarUsuario, obtenerUsuarios } from '../../lib/queries/
 import { slugify, soles } from '../../lib/utils';
 import { ProductImageManager } from '../../components/dashboard/ProductImageManager';
 import { useAsync } from '../../hooks/useAsync';
+import { CategoryIconManager } from '../../components/dashboard/CategoryIconManager';
 
 export function ProductosAdminPage() {
   const categoriasState = useAsync(obtenerCategorias, ['categorias-para-productos']);
@@ -71,9 +72,14 @@ export function CategoriasAdminPage() {
     update: editarCategoria,
     remove: eliminarCategoria,
     columns: [textColumn('nombre', 'Nombre'), textColumn('descripcion', 'Descripción'), textColumn('orden', 'Orden'), badgeColumn('activa', 'Activa')],
-    fields: [{ name: 'nombre', label: 'Nombre', required: true }, { name: 'descripcion', label: 'Descripción', type: 'textarea' }, { name: 'icono', label: 'Icono' }, { name: 'orden', label: 'Orden', type: 'number' }, { name: 'activa', label: 'Activa', type: 'boolean' }],
+    fields: [{ name: 'nombre', label: 'Nombre', required: true }, { name: 'descripcion', label: 'Descripción', type: 'textarea' }, { name: 'orden', label: 'Orden', type: 'number', step: '1', inputMode: 'numeric' }, { name: 'activa', label: 'Activa', type: 'boolean' }],
   };
-  return <AdminCrudPage module={module} />;
+  return (
+    <div className="grid gap-6">
+      <CategoryIconManager />
+      <AdminCrudPage module={module} />
+    </div>
+  );
 }
 
 export function PromocionesAdminPage() {

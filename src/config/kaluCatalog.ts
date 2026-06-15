@@ -1,4 +1,4 @@
-export type KaluCategoryId = 'cuchareables' | 'tortas-cuarto' | 'tortas-kilo' | 'personalizadas' | 'bocaditos';
+export type KaluCategoryId = 'cuchareables' | 'tortas-cuarto' | 'tortas-kilo' | 'personalizadas' | 'bocaditos' | 'kekes';
 
 export interface KaluCategory {
   id: KaluCategoryId;
@@ -53,6 +53,7 @@ export const kaluCategories: KaluCategory[] = [
   { id: 'tortas-kilo', nombre: 'Tortas 1 kg', descripcion: 'Tortas enteras y combinadas para compartir.' },
   { id: 'personalizadas', nombre: 'Tortas personalizadas', descripcion: 'Diseños para eventos, cumpleaños y celebraciones.' },
   { id: 'bocaditos', nombre: 'Bocaditos', descripcion: 'Dulces pequeños para acompañar cualquier momento.' },
+  { id: 'kekes', nombre: 'Kekes', descripcion: 'Kekes caseros de pecana, plátano y sabores de temporada.' },
 ];
 
 const cuchareableNames = [
@@ -73,7 +74,7 @@ function product(id: string, nombre: string, precio: number | null, categoriaId:
     categoriaId,
     categoria,
     descripcion,
-    imagen: categoriaId === 'bocaditos' ? sweetsImage : categoriaId === 'personalizadas' ? cakeImage : dessertImage,
+    imagen: categoriaId === 'bocaditos' || categoriaId === 'kekes' ? sweetsImage : categoriaId === 'personalizadas' ? cakeImage : dessertImage,
     promoCuchareable: categoriaId === 'cuchareables' && cuchareableNames.includes(nombre),
     consultable: precio === null,
     ...options,
@@ -114,8 +115,8 @@ export const kaluProducts: KaluProduct[] = [
 
   product('boc-alfajores-maicena', 'Alfajores de Maicena', 2.5, 'bocaditos', 'Alfajor suave de maicena con relleno dulce.'),
   product('boc-pye-manzana', 'Pye de Manzana', 4.5, 'bocaditos', 'Pye casero con manzana especiada.'),
-  product('boc-keke-pecana', 'Keke de Pecana', 3, 'bocaditos', 'Keke individual con pecanas.'),
-  product('boc-keke-platano', 'Keke de Plátano', 3, 'bocaditos', 'Keke casero de plátano.'),
+  product('boc-keke-pecana', 'Keke de Pecana', 3, 'kekes', 'Keke individual con pecanas.'),
+  product('boc-keke-platano', 'Keke de Plátano', 3, 'kekes', 'Keke casero de plátano.'),
 ];
 
 export function getProductById(id: string) {

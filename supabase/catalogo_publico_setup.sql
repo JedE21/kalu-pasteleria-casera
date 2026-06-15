@@ -16,10 +16,27 @@ set public = excluded.public,
     file_size_limit = excluded.file_size_limit,
     allowed_mime_types = excluded.allowed_mime_types;
 
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'categorias',
+  'categorias',
+  true,
+  2097152,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
+)
+on conflict (id) do update
+set public = excluded.public,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
+
 drop policy if exists "imagenes_productos_publicas" on storage.objects;
 drop policy if exists "admins_suben_imagenes_productos" on storage.objects;
 drop policy if exists "admins_actualizan_imagenes_productos" on storage.objects;
 drop policy if exists "admins_eliminan_imagenes_productos" on storage.objects;
+drop policy if exists "iconos_categorias_publicos" on storage.objects;
+drop policy if exists "admins_suben_iconos_categorias" on storage.objects;
+drop policy if exists "admins_actualizan_iconos_categorias" on storage.objects;
+drop policy if exists "admins_eliminan_iconos_categorias" on storage.objects;
 
 create policy "imagenes_productos_publicas"
 on storage.objects
@@ -45,12 +62,58 @@ for delete
 to authenticated
 using (bucket_id = 'productos' and public.es_admin_actual());
 
+create policy "iconos_categorias_publicos"
+on storage.objects
+for select
+using (bucket_id = 'categorias');
+
+create policy "admins_suben_iconos_categorias"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'categorias' and public.es_admin_actual());
+
+create policy "admins_actualizan_iconos_categorias"
+on storage.objects
+for update
+to authenticated
+using (bucket_id = 'categorias' and public.es_admin_actual())
+with check (bucket_id = 'categorias' and public.es_admin_actual());
+
+create policy "admins_eliminan_iconos_categorias"
+on storage.objects
+for delete
+to authenticated
+using (bucket_id = 'categorias' and public.es_admin_actual());
+
+drop policy if exists "admins_crean_categorias" on public.categorias;
+drop policy if exists "admins_actualizan_categorias" on public.categorias;
+drop policy if exists "admins_eliminan_categorias" on public.categorias;
 drop policy if exists "admins_crean_productos" on public.productos;
 drop policy if exists "admins_actualizan_productos" on public.productos;
 drop policy if exists "admins_eliminan_productos" on public.productos;
 drop policy if exists "admins_crean_imagenes_productos" on public.imagenes_productos;
 drop policy if exists "admins_actualizan_imagenes_productos" on public.imagenes_productos;
 drop policy if exists "admins_eliminan_imagenes_productos" on public.imagenes_productos;
+
+create policy "admins_crean_categorias"
+on public.categorias
+for insert
+to authenticated
+with check (public.es_admin_actual());
+
+create policy "admins_actualizan_categorias"
+on public.categorias
+for update
+to authenticated
+using (public.es_admin_actual())
+with check (public.es_admin_actual());
+
+create policy "admins_eliminan_categorias"
+on public.categorias
+for delete
+to authenticated
+using (public.es_admin_actual());
 
 create policy "admins_crean_productos"
 on public.productos
@@ -96,7 +159,8 @@ values
 ('Tortas 1/4 kg', 'Porciones generosas y combinaciones dúo.', 'cake-slice', 2, true),
 ('Tortas 1 kg', 'Tortas enteras y combinadas para compartir.', 'cake-slice', 3, true),
 ('Tortas personalizadas', 'Diseños para eventos, cumpleaños y celebraciones.', 'sparkles', 4, true),
-('Bocaditos', 'Dulces pequeños para acompañar cualquier momento.', 'cookie', 5, true)
+('Bocaditos', 'Dulces pequeños para acompañar cualquier momento.', 'cookie', 5, true),
+('Kekes', 'Kekes caseros de pecana, plátano y sabores de temporada.', 'cake', 6, true)
 on conflict (nombre) do update
 set descripcion = excluded.descripcion,
     icono = excluded.icono,
@@ -134,8 +198,8 @@ with catalogo(categoria_nombre, nombre, slug, descripcion, precio_venta, costo_u
   ('Tortas personalizadas', 'Tortas Personalizadas para Eventos', 'personalizadas-eventos', 'Diseños especiales para cumpleaños, bautizos, baby shower, aniversarios, graduaciones, temáticas infantiles, eventos corporativos y diseños personalizados. Precio según diseño, tamaño y decoración.', 0.00, 0.00, false, 180),
   ('Bocaditos', 'Alfajores de Maicena', 'boc-alfajores-maicena', 'Alfajor suave de maicena con relleno dulce.', 2.50, 1.00, true, 45),
   ('Bocaditos', 'Pye de Manzana', 'boc-pye-manzana', 'Pye casero con manzana especiada.', 4.50, 1.90, false, 60),
-  ('Bocaditos', 'Keke de Pecana', 'boc-keke-pecana', 'Keke individual con pecanas.', 3.00, 1.20, false, 45),
-  ('Bocaditos', 'Keke de Plátano', 'boc-keke-platano', 'Keke casero de plátano.', 3.00, 1.10, false, 45)
+  ('Kekes', 'Keke de Pecana', 'boc-keke-pecana', 'Keke individual con pecanas.', 3.00, 1.20, false, 45),
+  ('Kekes', 'Keke de Plátano', 'boc-keke-platano', 'Keke casero de plátano.', 3.00, 1.10, false, 45)
 )
 insert into public.productos (categoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_minimo, disponible, destacado, tiempo_preparacion_min)
 select c.id, catalogo.nombre, catalogo.slug, catalogo.descripcion, catalogo.precio_venta, catalogo.costo_unitario, 0, true, catalogo.destacado, catalogo.tiempo_preparacion_min

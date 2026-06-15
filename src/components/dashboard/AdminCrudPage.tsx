@@ -23,6 +23,8 @@ export interface CrudField<T extends CrudRow> {
   type?: FieldType;
   required?: boolean;
   readonly?: boolean;
+  step?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   options?: Array<{ label: string; value: string }>;
 }
 
@@ -148,8 +150,8 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
                 <Input
                   name={field.name}
                   type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'}
-                  step={field.type === 'number' ? '0.01' : undefined}
-                  inputMode={field.type === 'number' ? 'decimal' : undefined}
+                  step={field.type === 'number' ? field.step ?? '0.01' : undefined}
+                  inputMode={field.type === 'number' ? field.inputMode ?? 'decimal' : undefined}
                   required={field.required}
                   readOnly={field.readonly}
                   defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')}
