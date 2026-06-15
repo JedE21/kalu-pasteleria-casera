@@ -1,5 +1,5 @@
 import { demoImagenes, demoProductos, demoVariantes } from '../demoData';
-import type { ImagenProducto, Producto, VarianteProducto } from '../../types/esquema';
+import type { Categoria, ImagenProducto, Producto, VarianteProducto } from '../../types/esquema';
 import { deleteRow, insertRow, safeQuery, selectTable, updateRow } from './base';
 import { requireSupabase } from '../supabase';
 
@@ -45,3 +45,59 @@ export const editarProducto = (id: string, payload: Partial<Producto>) => update
 export const eliminarProducto = (id: string) => deleteRow('productos', id);
 export const crearImagenProducto = (payload: Partial<ImagenProducto>) => insertRow<ImagenProducto>('imagenes_productos', payload);
 export const crearVarianteProducto = (payload: Partial<VarianteProducto>) => insertRow<VarianteProducto>('variantes_productos', payload);
+
+export interface ProductoCatalogoPublico extends Producto {
+  categorias?: Pick<Categoria, 'id' | 'nombre' | 'descripcion' | 'orden'> | null;
+  imagenes_productos?: ImagenProducto[];
+}
+
+export async function obtenerCatalogoPublico() {
+  return safeQuery<ProductoCatalogoPublico[]>('catalogo.publico', [], async () => {
+    const client = requireSupabase() as any;
+    const { data, error } = await client
+      .from('productos')
+      .select('*, categorias(id,nombre,descripcion,orden), imagenes_productos(id,producto_id,url,alt_text,orden,principal)')
+      .eq('disponible', true)
+      .order('destacado', { ascending: false })
+      .order('nombre');
+
+    if (error) throw new Error(`catalogo.publico: ${error.message}`);
+    return (data ?? []) as ProductoCatalogoPublico[];
+  });
+}
+
+export async function subirImagenProducto(producto: Producto, archivo: File) {
+  const client = requireSupabase() as any;
+  const extension = archivo.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const path = `${producto.id}/${Date.now()}-${producto.slug}.${extension}`;
+  const { error: uploadError } = await client.storage
+    .from('productos')
+    .upload(path, archivo, { cacheControl: '3600', upsert: true, contentType: archivo.type });
+
+  if (uploadError) throw new Error(`storage.productos: ${uploadError.message}`);
+
+  const { data } = client.storage.from('productos').getPublicUrl(path);
+  const url = data.publicUrl as string;
+
+  await marcarImagenPrincipalProducto(producto.id, url, producto.nombre);
+  return url;
+}
+
+export async function marcarImagenPrincipalProducto(productoId: string, url: string, altText: string) {
+  const client = requireSupabase() as any;
+  const { error: updateError } = await client
+    .from('imagenes_productos')
+    .update({ principal: false })
+    .eq('producto_id', productoId);
+
+  if (updateError) throw new Error(`imagenes_productos: ${updateError.message}`);
+
+  const { data, error } = await client
+    .from('imagenes_productos')
+    .insert({ producto_id: productoId, url, alt_text: altText, orden: 1, principal: true })
+    .select('*')
+    .single();
+
+  if (error) throw new Error(`imagenes_productos: ${error.message}`);
+  return data as ImagenProducto;
+}

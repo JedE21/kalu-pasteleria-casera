@@ -5,6 +5,7 @@ Este documento describe el contrato de datos definido en `supabase_master.sql`. 
 ## Reglas generales
 
 - Ejecuta primero `supabase_master.sql` completo en Supabase antes de conectar el frontend.
+- Para activar el catálogo público administrable, ejecuta después `supabase/catalogo_publico_setup.sql`.
 - Todas las tablas usan `id uuid PRIMARY KEY DEFAULT gen_random_uuid()`.
 - Las tablas operativas tienen `created_at` y, cuando se actualizan, `updated_at`.
 - `productos.margen` es una columna generada: `precio_venta - costo_unitario`.
@@ -52,6 +53,37 @@ SELECT * FROM get_schema_overview();
 ```
 
 ## Consultas ejemplo
+
+### Catálogo público administrable
+
+Para que la tienda pública use productos reales de Supabase, ejecuta:
+
+```sql
+-- 1. Base principal
+-- contenido de supabase_master.sql
+
+-- 2. Auth/RLS de administradores
+-- contenido de supabase/admin_auth_setup.sql
+
+-- 3. Catálogo, imágenes, Storage y realtime
+-- contenido de supabase/catalogo_publico_setup.sql
+```
+
+El dashboard modifica `productos`. La imagen referencial se guarda en Supabase Storage, bucket `productos`, y se registra como imagen principal en `imagenes_productos`.
+
+```sql
+SELECT
+  p.nombre,
+  p.slug,
+  p.precio_venta,
+  c.nombre AS categoria,
+  i.url AS imagen_principal
+FROM productos p
+LEFT JOIN categorias c ON c.id = p.categoria_id
+LEFT JOIN imagenes_productos i ON i.producto_id = p.id AND i.principal = true
+WHERE p.disponible = true
+ORDER BY c.orden, p.nombre;
+```
 
 ### Resumen del dashboard
 

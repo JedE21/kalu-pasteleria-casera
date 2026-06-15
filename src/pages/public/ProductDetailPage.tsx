@@ -4,16 +4,19 @@ import { toast } from 'sonner';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
-import { EmptyState } from '../../components/ui/States';
-import { getProductById, officialWhatsapp } from '../../config/kaluCatalog';
+import { EmptyState, LoadingState } from '../../components/ui/States';
+import { officialWhatsapp } from '../../config/kaluCatalog';
 import { useCart } from '../../context/CartContext';
+import { useCatalogoPublico } from '../../hooks/useCatalogoPublico';
 import { soles, whatsappLink } from '../../lib/utils';
 
 export function ProductDetailPage() {
   const { id = '' } = useParams();
-  const product = getProductById(id);
+  const { products, loading } = useCatalogoPublico();
+  const product = products.find((item) => item.id === id);
   const { addItem } = useCart();
 
+  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10"><LoadingState label="Cargando producto..." /></main>;
   if (!product) return <main className="mx-auto max-w-7xl px-4 py-10"><EmptyState title="Producto no encontrado" /></main>;
 
   function add() {

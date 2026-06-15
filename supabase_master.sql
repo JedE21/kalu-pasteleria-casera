@@ -58,7 +58,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE roles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre text NOT NULL UNIQUE,
+  nombre text NOT NULL,
   descripcion text,
   activo boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),

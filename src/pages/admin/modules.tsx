@@ -14,6 +14,7 @@ import { marcarAlertaLeida, obtenerAlertas } from '../../lib/queries/alertas';
 import { crearSucursal, obtenerSucursales } from '../../lib/queries/configuracion';
 import { crearUsuario, editarUsuario, obtenerUsuarios } from '../../lib/queries/usuarios';
 import { soles } from '../../lib/utils';
+import { ProductImageManager } from '../../components/dashboard/ProductImageManager';
 
 export function ProductosAdminPage() {
   const module: CrudModule<Producto> = {
@@ -38,7 +39,12 @@ export function ProductosAdminPage() {
       { name: 'tiempo_preparacion_min', label: 'Tiempo preparación min', type: 'number' },
     ],
   };
-  return <AdminCrudPage module={module} />;
+  return (
+    <div className="grid gap-6">
+      <ProductImageManager />
+      <AdminCrudPage module={module} />
+    </div>
+  );
 }
 
 export function CategoriasAdminPage() {

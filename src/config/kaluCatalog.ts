@@ -16,6 +16,7 @@ export interface KaluProduct {
   imagen: string;
   promoCuchareable: boolean;
   consultable: boolean;
+  destacado?: boolean;
 }
 
 export interface PickupPoint {

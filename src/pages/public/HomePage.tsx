@@ -4,11 +4,13 @@ import { KaluProductCard } from '../../components/public/KaluProductCard';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
-import { kaluCategories, kaluProducts, officialWhatsapp, pickupPoints } from '../../config/kaluCatalog';
+import { officialWhatsapp, pickupPoints } from '../../config/kaluCatalog';
+import { useCatalogoPublico } from '../../hooks/useCatalogoPublico';
 import { whatsappLink } from '../../lib/utils';
 
 export function HomePage() {
-  const destacados = kaluProducts.filter((product) => ['cuch-chocolate-fudge', 'cuch-cheesecake-maracuya', 'kilo-combo-triple', 'boc-alfajores-maicena'].includes(product.id));
+  const { products, categories: kaluCategories } = useCatalogoPublico();
+  const destacados = products.filter((product) => product.destacado || ['cuch-chocolate-fudge', 'cuch-cheesecake-maracuya', 'kilo-combo-triple', 'boc-alfajores-maicena'].includes(product.id)).slice(0, 4);
 
   return (
     <main>

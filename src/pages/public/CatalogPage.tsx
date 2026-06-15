@@ -3,21 +3,24 @@ import { KaluProductCard } from '../../components/public/KaluProductCard';
 import { Badge } from '../../components/ui/Badge';
 import { Select } from '../../components/ui/Input';
 import { SearchBar } from '../../components/ui/SearchBar';
-import { kaluCategories, kaluProducts, type KaluCategoryId } from '../../config/kaluCatalog';
+import { ErrorState, LoadingState } from '../../components/ui/States';
+import type { KaluCategoryId } from '../../config/kaluCatalog';
+import { useCatalogoPublico } from '../../hooks/useCatalogoPublico';
 import { normalizarTexto } from '../../lib/utils';
 
 export function CatalogPage() {
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState<KaluCategoryId | 'todas'>('todas');
   const [precio, setPrecio] = useState('todos');
+  const { products: catalogProducts, categories: kaluCategories, loading, error, refetch } = useCatalogoPublico();
 
-  const productos = useMemo(() => kaluProducts.filter((producto) => {
+  const productos = useMemo(() => catalogProducts.filter((producto) => {
     const matchesSearch = normalizarTexto(producto.nombre).includes(normalizarTexto(search));
     const matchesCategoria = categoria === 'todas' || producto.categoriaId === categoria;
     const price = producto.precio ?? 0;
     const matchesPrecio = precio === 'todos' || (precio === 'menor10' ? price > 0 && price < 10 : price >= 10);
     return matchesSearch && matchesCategoria && matchesPrecio;
-  }), [search, categoria, precio]);
+  }), [catalogProducts, search, categoria, precio]);
 
   const grouped = kaluCategories.map((category) => ({
     category,
@@ -46,6 +49,8 @@ export function CatalogPage() {
         </Select>
       </div>
       <div className="grid gap-10">
+        {loading ? <LoadingState label="Cargando catálogo Kalú..." /> : null}
+        {error ? <ErrorState message={error} onRetry={refetch} /> : null}
         {grouped.map(({ category, products }) => (
           <section key={category.id}>
             <div className="mb-4">
