@@ -8,6 +8,13 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Field, Input } from '../../components/ui/Input';
 import { supabase, supabaseConfig } from '../../lib/supabaseClient';
 
+function friendlySupabaseError(message: string | undefined) {
+  if (message?.toLowerCase().includes('invalid path specified')) {
+    return 'La URL de Supabase está mal configurada. En Netlify, VITE_SUPABASE_URL debe ser solo algo como https://xxxx.supabase.co, sin /rest/v1 ni /auth/v1.';
+  }
+  return message ?? 'No se pudo iniciar sesión.';
+}
+
 export function AdminLogin() {
   const navigate = useNavigate();
   const [correo, setCorreo] = useState('');
@@ -34,7 +41,7 @@ export function AdminLogin() {
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email: correo, password });
     if (error || !data.user) {
-      toast.error(error?.message ?? 'No se pudo iniciar sesión.');
+      toast.error(friendlySupabaseError(error?.message));
       setLoading(false);
       return;
     }
