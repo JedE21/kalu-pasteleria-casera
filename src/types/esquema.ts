@@ -340,6 +340,9 @@ export interface RolPermiso extends BaseRow {
 export interface Usuario extends BaseRow {
   auth_user_id: string | null;
   rol_id: string | null;
+  correo?: string | null;
+  rol?: string | null;
+  estado?: string | null;
   nombres: string;
   apellidos: string | null;
   email: string;

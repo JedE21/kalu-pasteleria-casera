@@ -12,7 +12,7 @@ import { crearPromocion, editarPromocion, eliminarPromocion, obtenerPromociones 
 import { crearReceta, editarReceta, eliminarReceta, obtenerRecetas } from '../../lib/queries/recetas';
 import { marcarAlertaLeida, obtenerAlertas } from '../../lib/queries/alertas';
 import { crearSucursal, obtenerSucursales } from '../../lib/queries/configuracion';
-import { crearUsuario, obtenerUsuarios } from '../../lib/queries/usuarios';
+import { crearUsuario, editarUsuario, obtenerUsuarios } from '../../lib/queries/usuarios';
 import { soles } from '../../lib/utils';
 
 export function ProductosAdminPage() {
@@ -207,8 +207,20 @@ export function AdministracionAdminPage() {
     tableName: 'usuarios',
     loader: obtenerUsuarios,
     create: crearUsuario,
-    columns: [textColumn('nombres', 'Nombres'), textColumn('email', 'Email'), textColumn('telefono', 'Teléfono'), badgeColumn('activo', 'Activo')],
-    fields: [{ name: 'rol_id', label: 'rol_id' }, { name: 'nombres', label: 'Nombres', required: true }, { name: 'apellidos', label: 'Apellidos' }, { name: 'email', label: 'Email', required: true }, { name: 'telefono', label: 'Teléfono' }, { name: 'activo', label: 'Activo', type: 'boolean' }],
+    update: editarUsuario,
+    columns: [textColumn('nombres', 'Nombres'), textColumn('email', 'Email'), textColumn('telefono', 'Teléfono'), badgeColumn('rol', 'Rol'), badgeColumn('estado', 'Estado'), badgeColumn('activo', 'Activo')],
+    fields: [
+      { name: 'auth_user_id', label: 'auth_user_id' },
+      { name: 'rol_id', label: 'rol_id' },
+      { name: 'nombres', label: 'Nombres', required: true },
+      { name: 'apellidos', label: 'Apellidos' },
+      { name: 'email', label: 'Email', required: true },
+      { name: 'correo', label: 'Correo login' },
+      { name: 'telefono', label: 'Teléfono' },
+      { name: 'rol', label: 'Rol', type: 'select', options: ['admin', 'cliente', 'vendedor', 'produccion', 'delivery'].map((value) => ({ label: value, value })) },
+      { name: 'estado', label: 'Estado', type: 'select', options: ['activo', 'inactivo'].map((value) => ({ label: value, value })) },
+      { name: 'activo', label: 'Activo', type: 'boolean' },
+    ],
   };
   return <AdminCrudPage module={module} />;
 }

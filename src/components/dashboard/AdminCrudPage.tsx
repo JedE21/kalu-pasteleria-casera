@@ -107,7 +107,8 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
       cell: (row) => (
         <div className="flex gap-2">
           {module.update ? <Button variant="ghost" className="h-8 w-8 px-0" title="Editar" onClick={() => handleEdit(row)} icon={<Pencil className="h-4 w-4" />} /> : null}
-          {module.remove ? <Button variant="ghost" className="h-8 w-8 px-0" title="Eliminar" onClick={() => void handleDelete(row)} icon={<Trash2 className="h-4 w-4" />} /> : <Badge tone="default">Lectura</Badge>}
+          {module.remove ? <Button variant="ghost" className="h-8 w-8 px-0" title="Eliminar" onClick={() => void handleDelete(row)} icon={<Trash2 className="h-4 w-4" />} /> : null}
+          {!module.update && !module.remove ? <Badge tone="default">Lectura</Badge> : null}
         </div>
       ),
     },

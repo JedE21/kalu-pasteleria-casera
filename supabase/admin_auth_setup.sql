@@ -27,6 +27,7 @@ alter table public.usuarios enable row level security;
 
 drop policy if exists "usuarios_leen_su_registro" on public.usuarios;
 drop policy if exists "admins_leen_usuarios" on public.usuarios;
+drop policy if exists "admins_crean_usuarios" on public.usuarios;
 drop policy if exists "admins_actualizan_usuarios" on public.usuarios;
 
 create or replace function public.es_admin_actual()
@@ -59,6 +60,12 @@ on public.usuarios
 for select
 to authenticated
 using (public.es_admin_actual());
+
+create policy "admins_crean_usuarios"
+on public.usuarios
+for insert
+to authenticated
+with check (public.es_admin_actual());
 
 create policy "admins_actualizan_usuarios"
 on public.usuarios
