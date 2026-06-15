@@ -13,23 +13,37 @@ import { crearReceta, editarReceta, eliminarReceta, obtenerRecetas } from '../..
 import { marcarAlertaLeida, obtenerAlertas } from '../../lib/queries/alertas';
 import { crearSucursal, obtenerSucursales } from '../../lib/queries/configuracion';
 import { crearUsuario, editarUsuario, obtenerUsuarios } from '../../lib/queries/usuarios';
-import { soles } from '../../lib/utils';
+import { slugify, soles } from '../../lib/utils';
 import { ProductImageManager } from '../../components/dashboard/ProductImageManager';
+import { useAsync } from '../../hooks/useAsync';
 
 export function ProductosAdminPage() {
+  const categoriasState = useAsync(obtenerCategorias, ['categorias-para-productos']);
+  const categoriasOptions = (categoriasState.data?.data ?? [])
+    .filter((categoria) => categoria.activa)
+    .map((categoria) => ({ label: categoria.nombre, value: categoria.id }));
+
+  const crearProductoDashboard = (payload: Partial<Producto>) => {
+    const nombre = String(payload.nombre ?? '').trim();
+    return crearProducto({
+      ...payload,
+      nombre,
+      slug: slugify(nombre),
+    });
+  };
+
   const module: CrudModule<Producto> = {
     title: 'Productos',
     description: 'CRUD de `productos`; el margen es generado por Supabase y no se edita directamente.',
     tableName: 'productos',
     loader: obtenerProductos,
-    create: crearProducto,
+    create: crearProductoDashboard,
     update: editarProducto,
     remove: eliminarProducto,
     columns: [textColumn('nombre', 'Producto'), moneyColumn('precio_venta', 'Precio'), moneyColumn('costo_unitario', 'Costo'), moneyColumn('margen', 'Margen'), badgeColumn('disponible', 'Disponible'), badgeColumn('destacado', 'Destacado')],
     fields: [
-      { name: 'categoria_id', label: 'categoria_id' },
+      { name: 'categoria_id', label: 'Categoría', type: 'select', required: true, options: categoriasOptions },
       { name: 'nombre', label: 'Nombre', required: true },
-      { name: 'slug', label: 'Slug' },
       { name: 'descripcion', label: 'Descripción', type: 'textarea' },
       { name: 'precio_venta', label: 'Precio venta', type: 'number', required: true },
       { name: 'costo_unitario', label: 'Costo unitario', type: 'number', required: true },
