@@ -1,12 +1,13 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { AlertTriangle, BarChart3, Bike, Boxes, CakeSlice, ClipboardList, HeartPulse, LayoutDashboard, LineChart, Megaphone, Moon, Settings, Shield, Users, Wallet } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { AlertTriangle, BarChart3, Bike, Boxes, CakeSlice, ClipboardList, HeartPulse, LayoutDashboard, LineChart, LogOut, Megaphone, Moon, Settings, Shield, Users, Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { BrandLogo } from './BrandLogo';
 import { Button } from '../ui/Button';
 import { SearchBar } from '../ui/SearchBar';
+import { supabase } from '../../lib/supabaseClient';
 
 const nav = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/productos', label: 'Productos', icon: CakeSlice },
   { to: '/admin/categorias', label: 'Categorías', icon: BarChart3 },
   { to: '/admin/promociones', label: 'Promociones', icon: Megaphone },
@@ -27,6 +28,7 @@ const nav = [
 
 export function AdminLayout() {
   const [dark, setDark] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -42,7 +44,7 @@ export function AdminLayout() {
           {nav.map((item) => {
             const Icon = item.icon;
             return (
-              <NavLink key={item.to} to={item.to} end={item.to === '/admin'} className={({ isActive }) => `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-bold ${isActive ? 'bg-morado text-white' : 'text-chocolate/75 hover:bg-lavanda/45 dark:text-crema/75 dark:hover:bg-white/10'}`}>
+              <NavLink key={item.to} to={item.to} className={({ isActive }) => `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-bold ${isActive ? 'bg-morado text-white' : 'text-chocolate/75 hover:bg-lavanda/45 dark:text-crema/75 dark:hover:bg-white/10'}`}>
                 <Icon className="h-4 w-4" />
                 <span>{item.label}</span>
               </NavLink>
@@ -60,6 +62,7 @@ export function AdminLayout() {
             <div className="flex min-w-0 items-center gap-2">
               <div className="min-w-0 flex-1 md:w-72 md:flex-none"><SearchBar value="" onChange={() => undefined} placeholder="Buscar en el dashboard" /></div>
               <Button variant="ghost" className="h-10 w-10 px-0" icon={<Moon className="h-4 w-4" />} onClick={() => setDark((value) => !value)} title="Cambiar modo" />
+              <Button variant="ghost" className="h-10 w-10 px-0" icon={<LogOut className="h-4 w-4" />} onClick={async () => { await supabase?.auth.signOut(); navigate('/admin/login'); }} title="Cerrar sesión" />
             </div>
           </div>
         </header>

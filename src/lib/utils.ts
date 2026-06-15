@@ -31,6 +31,6 @@ export function slugify(valor: string) {
 }
 
 export function whatsappLink(numero: string | null | undefined, mensaje: string) {
-  const limpio = (numero || '51999555121').replace(/\D/g, '');
+  const limpio = (numero || '51912888898').replace(/\D/g, '');
   return `https://wa.me/${limpio}?text=${encodeURIComponent(mensaje)}`;
 }

@@ -41,7 +41,8 @@ No uses `service_role` en el frontend. La app usa anon key y respeta RLS.
 ## Rutas públicas
 
 - `/`
-- `/catalogo`
+- `/productos`
+- `/catalogo` (alias compatible)
 - `/producto/:id`
 - `/promociones`
 - `/nosotros`
@@ -50,6 +51,8 @@ No uses `service_role` en el frontend. La app usa anon key y respeta RLS.
 ## Rutas admin
 
 - `/admin`
+- `/admin/login`
+- `/admin/dashboard`
 - `/admin/productos`
 - `/admin/categorias`
 - `/admin/promociones`

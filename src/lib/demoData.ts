@@ -149,8 +149,8 @@ export const demoUsuarios: Usuario[] = [
 ];
 
 export const demoSucursales: Sucursal[] = [
-  { id: 'suc-1', nombre: 'Taller Miraflores', direccion: 'Av. La Paz 845', distrito: 'Miraflores', ciudad: 'Lima', telefono: '999 555 121', horario_atencion: 'Lun-Sáb 9:00 a 19:00', latitud: -12.1234567, longitud: -77.0301234, activa: true, created_at: now, updated_at: now },
-  { id: 'suc-2', nombre: 'Punto de recojo Surco', direccion: 'Jr. Monte Rosa 220', distrito: 'Santiago de Surco', ciudad: 'Lima', telefono: '999 555 130', horario_atencion: 'Vie-Dom 10:00 a 18:00', latitud: -12.1112222, longitud: -76.9903333, activa: true, created_at: now, updated_at: now },
+  { id: 'suc-1', nombre: 'Afuera de Precio Uno de La Tinguiña', direccion: 'Av. Río de Janeiro', distrito: 'La Tinguiña', ciudad: 'Ica', telefono: '912 888 898', horario_atencion: 'Atención según disponibilidad y pedidos programados', latitud: -14.0349, longitud: -75.7047, activa: true, created_at: now, updated_at: now },
+  { id: 'suc-2', nombre: 'Afuera de Oechsle de Ica', direccion: 'Av. San Martín', distrito: 'Ica', ciudad: 'Ica', telefono: '912 888 898', horario_atencion: 'Atención según disponibilidad y pedidos programados', latitud: -14.0678, longitud: -75.7286, activa: true, created_at: now, updated_at: now },
 ];
 
 export const demoConfiguracion: ConfiguracionEmpresa = {
@@ -161,10 +161,10 @@ export const demoConfiguracion: ConfiguracionEmpresa = {
   ruc: '20609988771',
   email_contacto: 'hola@kalupasteleria.pe',
   telefono_contacto: '999 555 121',
-  whatsapp: '51999555121',
+  whatsapp: '51912888898',
   moneda: 'PEN',
   igv_porcentaje: 18,
-  direccion_principal: 'Av. La Paz 845, Miraflores',
+  direccion_principal: 'Ica, Perú',
   logo_url: null,
   color_primario: '#7d4b98',
   color_secundario: '#4b332b',

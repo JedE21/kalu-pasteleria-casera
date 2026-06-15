@@ -1,39 +1,45 @@
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent } from '../../components/ui/Card';
-import { LoadingState } from '../../components/ui/States';
-import { obtenerPromociones, obtenerReglasPromocion } from '../../lib/queries/promociones';
-import { fechaCorta, soles } from '../../lib/utils';
-import { useAsync } from '../../hooks/useAsync';
+
+const eligible = [
+  'Torta de Chocolate con Fudge Casero',
+  'Torta Sublime con Maní',
+  'Cheesecake de Maracuyá',
+  'Carrot Cake',
+  'Tres Leches',
+  'Torta de Chocoteja con Pecanas',
+];
 
 export function PromotionsPage() {
-  const { data, loading } = useAsync(async () => {
-    const [promociones, reglas] = await Promise.all([obtenerPromociones(), obtenerReglasPromocion()]);
-    return { promociones, reglas };
-  }, []);
-
-  if (loading || !data) return <main className="mx-auto max-w-7xl px-4 py-10"><LoadingState /></main>;
-
   return (
     <main className="mx-auto max-w-7xl px-4 py-10">
-      <h1 className="m-0 font-display text-5xl text-morado dark:text-lila">Promociones</h1>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {data.promociones.data.map((promo) => {
-          const reglas = data.reglas.data.filter((regla) => regla.promocion_id === promo.id);
-          return (
-            <Card key={promo.id}>
-              <CardContent className="grid gap-3">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="m-0 text-xl font-extrabold text-ciruela dark:text-crema">{promo.nombre}</h2>
-                  <Badge tone={promo.activa ? 'success' : 'danger'}>{promo.activa ? 'Activa' : 'Inactiva'}</Badge>
-                </div>
-                <p className="m-0 text-sm text-chocolate/70 dark:text-crema/70">{promo.descripcion}</p>
-                <strong>{promo.tipo_descuento === 'porcentaje' ? `${promo.valor}%` : promo.tipo_descuento === 'monto_fijo' ? soles(promo.valor) : 'Envío gratis'}</strong>
-                <span className="text-sm text-chocolate/65 dark:text-crema/65">{fechaCorta(promo.fecha_inicio)} - {fechaCorta(promo.fecha_fin)}</span>
-                <span className="text-xs font-bold uppercase text-morado dark:text-lila">{reglas.length} reglas configuradas</span>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <Badge tone="warning">Exclusiva en Ica</Badge>
+      <h1 className="m-0 mt-3 font-display text-5xl text-morado dark:text-lila">Promociones Kalú</h1>
+      <div className="mt-6 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <Card className="bg-morado text-white">
+          <CardContent className="grid gap-4 p-6">
+            <h2 className="m-0 font-display text-4xl">Cuchareables surtidos</h2>
+            <div className="grid gap-3 text-lg font-extrabold">
+              <div className="rounded-md bg-white/12 p-4">2 cuchareables surtidos → S/ 13.00</div>
+              <div className="rounded-md bg-white/12 p-4">3 cuchareables surtidos → S/ 18.00</div>
+            </div>
+            <p className="m-0 text-white/80">Sabores a elección entre los cuchareables participantes. La promoción se calcula automáticamente en el carrito.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="grid gap-4 p-6">
+            <div>
+              <h2 className="m-0 text-xl font-extrabold text-ciruela dark:text-crema">Sí aplica para:</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {eligible.map((item) => <Badge key={item} tone="success">{item}</Badge>)}
+              </div>
+            </div>
+            <div>
+              <h2 className="m-0 text-xl font-extrabold text-ciruela dark:text-crema">No aplica para:</h2>
+              <div className="mt-3"><Badge tone="danger">Torta de Pistacho</Badge></div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

@@ -22,7 +22,7 @@ export function ProductCard({ producto, imagen }: { producto: Producto; imagen?:
         </div>
         <div className="flex items-center justify-between gap-3">
           <strong className="text-lg text-morado dark:text-lila">{soles(producto.precio_venta)}</strong>
-          <a href={whatsappLink('51999555121', `Hola Kalú, quiero pedir ${producto.nombre}`)} target="_blank" rel="noreferrer">
+          <a href={whatsappLink('51912888898', `Hola Kalú, quiero pedir ${producto.nombre}`)} target="_blank" rel="noreferrer">
             <Button variant="secondary" icon={<MessageCircle className="h-4 w-4" />}>Pedir</Button>
           </a>
         </div>
