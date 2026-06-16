@@ -39,8 +39,12 @@ as $$
   select exists (
     select 1
     from public.usuarios u
+    left join public.roles r on r.id = u.rol_id
     where (u.id = auth.uid() or u.auth_user_id = auth.uid())
-      and u.rol = 'admin'
+      and (
+        u.rol = 'admin'
+        or lower(coalesce(r.nombre, '')) in ('admin', 'administrador', 'administradora')
+      )
       and coalesce(u.estado, 'activo') = 'activo'
       and coalesce(u.activo, true) = true
   );
@@ -73,6 +77,29 @@ for update
 to authenticated
 using (public.es_admin_actual())
 with check (public.es_admin_actual());
+
+drop policy if exists "admins_crean_categorias" on public.categorias;
+drop policy if exists "admins_actualizan_categorias" on public.categorias;
+drop policy if exists "admins_eliminan_categorias" on public.categorias;
+
+create policy "admins_crean_categorias"
+on public.categorias
+for insert
+to authenticated
+with check (public.es_admin_actual());
+
+create policy "admins_actualizan_categorias"
+on public.categorias
+for update
+to authenticated
+using (public.es_admin_actual())
+with check (public.es_admin_actual());
+
+create policy "admins_eliminan_categorias"
+on public.categorias
+for delete
+to authenticated
+using (public.es_admin_actual());
 
 -- Para crear el primer admin:
 -- 1. Crea el usuario en Supabase Authentication.
