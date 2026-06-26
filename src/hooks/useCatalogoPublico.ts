@@ -45,7 +45,7 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
     destacado: producto.destacado,
     stock: Number(producto.stock_actual ?? 0),
     ofertaActiva,
-    ofertaPrecio: ofertaActiva && producto.oferta_precio !== null ? Number(producto.oferta_precio) : null,
+    ofertaPrecio: producto.oferta_precio !== null ? Number(producto.oferta_precio) : null,
     ofertaFechaFin,
   };
 }

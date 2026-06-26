@@ -10,8 +10,12 @@ import { whatsappLink } from '../../lib/utils';
 
 export function HomePage() {
   const { products, categories: kaluCategories } = useCatalogoPublico();
-  const ofertas = products.filter((product) => product.ofertaActiva && product.ofertaPrecio !== null && product.ofertaFechaFin).slice(0, 4);
-  const destacados = products.filter((product) => product.destacado || ['cuch-chocolate-fudge', 'cuch-cheesecake-maracuya', 'kilo-combo-triple', 'boc-alfajores-maicena'].includes(product.id)).slice(0, 4);
+  const ofertas = products
+    .filter((product) => product.ofertaActiva && product.ofertaPrecio !== null && product.ofertaFechaFin)
+    .slice(0, 4);
+  const destacados = products
+    .filter((product) => product.destacado || ['cuch-chocolate-fudge', 'cuch-cheesecake-maracuya', 'kilo-combo-triple', 'boc-alfajores-maicena'].includes(product.id))
+    .slice(0, 4);
 
   return (
     <main>
@@ -34,6 +38,22 @@ export function HomePage() {
         </div>
       </section>
 
+      {ofertas.length ? (
+        <section className="mx-auto max-w-7xl px-4 py-6">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <Badge tone="danger">Tiempo limitado</Badge>
+              <h2 className="m-0 mt-2 font-display text-4xl text-ciruela dark:text-crema">Ofertas de hoy</h2>
+              <p className="m-0 mt-1 text-chocolate/70 dark:text-crema/70">Productos con precio especial y contador activo.</p>
+            </div>
+            <Link className="text-sm font-extrabold text-morado dark:text-lila" to="/ofertas">Ver ofertas</Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {ofertas.map((product) => <KaluProductCard key={product.id} product={product} />)}
+          </div>
+        </section>
+      ) : null}
+
       <section className="mx-auto grid max-w-7xl gap-4 px-4 py-6 md:grid-cols-2">
         {pickupPoints.map((point) => (
           <Card key={point.id}>
@@ -48,22 +68,6 @@ export function HomePage() {
           </Card>
         ))}
       </section>
-
-      {ofertas.length ? (
-        <section className="mx-auto max-w-7xl px-4 py-8">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <Badge tone="danger">Tiempo limitado</Badge>
-              <h2 className="m-0 mt-2 font-display text-4xl text-ciruela dark:text-crema">Ofertas de hoy</h2>
-              <p className="m-0 mt-1 text-chocolate/70 dark:text-crema/70">Productos con precio especial y contador activo.</p>
-            </div>
-            <Link className="text-sm font-extrabold text-morado dark:text-lila" to="/ofertas">Ver ofertas</Link>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {ofertas.map((product) => <KaluProductCard key={product.id} product={product} />)}
-          </div>
-        </section>
-      ) : null}
 
       <section className="mx-auto max-w-7xl px-4 py-8">
         <div className="mb-5 flex items-end justify-between gap-4">
