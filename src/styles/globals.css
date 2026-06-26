@@ -46,3 +46,22 @@ textarea:focus-visible {
   outline: 3px solid rgba(199, 154, 72, 0.45);
   outline-offset: 2px;
 }
+
+.premium-scrollbar {
+  scrollbar-color: rgba(83, 45, 94, 0.48) rgba(255, 248, 239, 0.72);
+  scrollbar-width: thin;
+}
+
+.premium-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.premium-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 248, 239, 0.72);
+}
+
+.premium-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(125, 75, 152, 0.55), rgba(199, 154, 72, 0.62));
+  border: 3px solid rgba(255, 248, 239, 0.72);
+  border-radius: 999px;
+}

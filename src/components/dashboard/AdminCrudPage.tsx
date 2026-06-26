@@ -96,6 +96,12 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   }
 
+  function fieldLayout(field: CrudField<T>) {
+    if (field.type === 'textarea') return 'md:col-span-2';
+    if (['nombre', 'descripcion'].includes(field.name)) return 'md:col-span-2';
+    return '';
+  }
+
   async function handleDelete(row: T) {
     if (!module.remove || !row.id) return;
     if (!supabaseConfig.isConfigured) {
@@ -142,9 +148,10 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
       {data?.fromDemo ? <Card className="border-dorado/60 bg-dorado/10 p-3 text-sm font-semibold text-chocolate dark:text-crema">Modo demo: conecta Supabase para CRUD real con RLS.</Card> : null}
       {loading ? <LoadingState /> : error ? <ErrorState message={error} onRetry={refetch} /> : <DataTable columns={columns} rows={rows} />}
       <Modal open={open} title={`${editing ? 'Editar' : 'Nuevo'} registro en ${module.tableName}`} onClose={() => { setOpen(false); setEditing(null); }}>
-        <form className="grid gap-4" onSubmit={handleSubmit}>
+        <form className="grid gap-5" onSubmit={handleSubmit}>
+          <div className="grid gap-4 rounded-lg border border-lavanda/70 bg-white/55 p-4 shadow-sm dark:border-white/10 dark:bg-white/5 md:grid-cols-2">
           {module.fields.map((field) => (
-            <Field key={field.name} label={field.label}>
+            <Field key={field.name} label={field.label} className={fieldLayout(field)}>
               {field.type === 'textarea' ? <Textarea name={field.name} required={field.required} readOnly={field.readonly} defaultValue={fieldValue(field)} /> : field.type === 'boolean' ? (
                 <Select name={field.name} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? (field.name === 'oferta_activa' ? false : true))}>
                   <option value="true">Sí</option>
@@ -168,7 +175,10 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
               )}
             </Field>
           ))}
-          <Button disabled={saving}>{saving ? 'Guardando...' : editing ? 'Actualizar' : 'Guardar'}</Button>
+          </div>
+          <div className="sticky bottom-0 -mx-5 -mb-5 border-t border-lavanda/70 bg-crema/95 px-5 py-4 backdrop-blur dark:border-white/10 dark:bg-cacao/95 sm:-mx-6 sm:px-6">
+            <Button className="h-11 w-full shadow-[0_12px_28px_rgba(83,45,94,0.22)]" disabled={saving}>{saving ? 'Guardando...' : editing ? 'Actualizar' : 'Guardar'}</Button>
+          </div>
         </form>
       </Modal>
     </section>
