@@ -17,6 +17,7 @@ export interface KaluProduct {
   promoCuchareable: boolean;
   consultable: boolean;
   destacado?: boolean;
+  stock: number;
 }
 
 export interface PickupPoint {
@@ -77,6 +78,7 @@ function product(id: string, nombre: string, precio: number | null, categoriaId:
     imagen: categoriaId === 'bocaditos' || categoriaId === 'kekes' ? sweetsImage : categoriaId === 'personalizadas' ? cakeImage : dessertImage,
     promoCuchareable: categoriaId === 'cuchareables' && cuchareableNames.includes(nombre),
     consultable: precio === null,
+    stock: 8,
     ...options,
   };
 }
@@ -88,14 +90,14 @@ export const kaluProducts: KaluProduct[] = [
   product('cuch-carrot-cake', 'Carrot Cake', 7, 'cuchareables', 'Bizcocho especiado de zanahoria con cobertura cremosa.'),
   product('cuch-tres-leches', 'Tres Leches', 7, 'cuchareables', 'Clásico tres leches húmedo y delicado.'),
   product('cuch-chocoteja-pecanas', 'Torta de Chocoteja con Pecanas', 7, 'cuchareables', 'Chocolate, manjar y pecanas en formato cuchareable.'),
-  product('cuch-pistacho', 'Torta de Pistacho', 8, 'cuchareables', 'Cuchareable premium de pistacho. No aplica a la promo.'),
+  product('cuch-pistacho', 'Torta de Pistacho', 8, 'cuchareables', 'Cuchareable premium de pistacho. No aplica a la promo.', { stock: 3 }),
 
   product('cuarto-chocolate-fudge', 'Torta de Chocolate con Fudge Casero', 12, 'tortas-cuarto', 'Torta 1/4 kg de chocolate con fudge casero.'),
   product('cuarto-sublime-mani', 'Torta Sublime con Maní', 12, 'tortas-cuarto', 'Torta 1/4 kg con chocolate y maní.'),
   product('cuarto-cheesecake-maracuya', 'Cheesecake de Maracuyá', 12, 'tortas-cuarto', 'Torta 1/4 kg con maracuyá natural.'),
   product('cuarto-carrot-cake', 'Carrot Cake', 12, 'tortas-cuarto', 'Torta 1/4 kg de carrot cake.'),
   product('cuarto-tres-leches', 'Tres Leches', 12, 'tortas-cuarto', 'Torta 1/4 kg tres leches.'),
-  product('cuarto-pistacho', 'Torta de Pistacho', 12, 'tortas-cuarto', 'Torta 1/4 kg sabor pistacho.'),
+  product('cuarto-pistacho', 'Torta de Pistacho', 12, 'tortas-cuarto', 'Torta 1/4 kg sabor pistacho.', { stock: 0 }),
   product('cuarto-chocoteja-pecanas', 'Torta de Chocoteja con Pecanas', 12, 'tortas-cuarto', 'Torta 1/4 kg con pecanas.'),
   product('cuarto-duo-chocolate-sublime', 'Torta de Chocolate con Fudge Casero + Torta Sublime con Maní', 12, 'tortas-cuarto', 'Combinación dúo en 1/4 kg.'),
   product('cuarto-duo-chocolate-chocoteja', 'Torta de Chocolate con Fudge Casero + Torta de Chocoteja con Pecanas', 12, 'tortas-cuarto', 'Combinación dúo en 1/4 kg.'),

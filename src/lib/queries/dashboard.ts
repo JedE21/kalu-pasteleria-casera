@@ -1,5 +1,5 @@
-import { demoAlertas, demoCosteo, demoInsumos, demoMetricas, demoPredicciones, demoResumen, demoVistaPedidos } from '../demoData';
-import type { Alerta, Insumo, MetricaDashboard, PrediccionVenta, VistaCosteoProducto, VistaPedidosDetalle, VistaResumenDashboard } from '../../types/esquema';
+import { demoAlertas, demoCosteo, demoMetricas, demoPredicciones, demoProductos, demoResumen, demoVistaPedidos } from '../demoData';
+import type { Alerta, MetricaDashboard, PrediccionVenta, Producto, VistaCosteoProducto, VistaPedidosDetalle, VistaResumenDashboard } from '../../types/esquema';
 import { safeQuery, selectTable } from './base';
 import { requireSupabase } from '../supabase';
 
@@ -17,14 +17,14 @@ export async function obtenerMetricasDashboard() {
 }
 
 export async function obtenerDashboardCompleto() {
-  const [resumen, metricas, pedidos, costeo, insumos, alertas, predicciones] = await Promise.all([
+  const [resumen, metricas, pedidos, costeo, productos, alertas, predicciones] = await Promise.all([
     obtenerResumenDashboard(),
     obtenerMetricasDashboard(),
     selectTable<VistaPedidosDetalle>('vista_pedidos_detalle', demoVistaPedidos, { column: 'created_at', ascending: false }),
     selectTable<VistaCosteoProducto>('vista_costeo_productos', demoCosteo, { column: 'nombre' }),
-    selectTable<Insumo>('insumos', demoInsumos, { column: 'nombre' }),
+    selectTable<Producto>('productos', demoProductos, { column: 'nombre' }),
     selectTable<Alerta>('alertas', demoAlertas, { column: 'created_at', ascending: false }),
     selectTable<PrediccionVenta>('predicciones_ventas', demoPredicciones, { column: 'fecha_objetivo' }),
   ]);
-  return { resumen, metricas, pedidos, costeo, insumos, alertas, predicciones };
+  return { resumen, metricas, pedidos, costeo, productos, alertas, predicciones };
 }

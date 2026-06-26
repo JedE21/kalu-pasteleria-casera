@@ -195,6 +195,7 @@ CREATE TABLE productos (
   precio_venta numeric(10, 2) NOT NULL CHECK (precio_venta >= 0),
   costo_unitario numeric(10, 2) NOT NULL DEFAULT 0 CHECK (costo_unitario >= 0),
   margen numeric(10, 2) GENERATED ALWAYS AS (precio_venta - costo_unitario) STORED,
+  stock_actual integer NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
   stock_minimo integer NOT NULL DEFAULT 0,
   disponible boolean NOT NULL DEFAULT true,
   destacado boolean NOT NULL DEFAULT false,
@@ -249,6 +250,7 @@ CREATE TABLE promociones (
   nombre text NOT NULL,
   descripcion text,
   codigo text UNIQUE,
+  tipo text NOT NULL DEFAULT 'promocion' CHECK (tipo IN ('promocion', 'oferta')),
   tipo_descuento text NOT NULL CHECK (tipo_descuento IN ('porcentaje', 'monto_fijo', 'envio_gratis')),
   valor numeric(10, 2) NOT NULL DEFAULT 0,
   fecha_inicio timestamptz NOT NULL,
@@ -536,6 +538,8 @@ CREATE TABLE predicciones_ventas (
 
 CREATE INDEX idx_productos_categoria_id ON productos(categoria_id);
 CREATE INDEX idx_productos_subcategoria_id ON productos(subcategoria_id);
+CREATE INDEX idx_productos_stock_actual ON productos(stock_actual);
+CREATE INDEX idx_promociones_tipo_fechas ON promociones(tipo, activa, fecha_inicio, fecha_fin);
 CREATE INDEX idx_pedidos_cliente_id ON pedidos(cliente_id);
 CREATE INDEX idx_pedidos_estado ON pedidos(estado);
 CREATE INDEX idx_pedidos_created_at ON pedidos(created_at);
@@ -544,6 +548,58 @@ CREATE INDEX idx_pagos_pedido_id ON pagos(pedido_id);
 CREATE INDEX idx_insumos_stock ON insumos(stock_actual, stock_minimo);
 CREATE INDEX idx_entregas_pedido_id ON entregas(pedido_id);
 CREATE INDEX idx_metricas_dashboard_fecha ON metricas_dashboard(fecha);
+
+CREATE OR REPLACE FUNCTION sincronizar_alerta_stock_producto()
+RETURNS trigger AS $$
+DECLARE
+  alerta_id uuid;
+BEGIN
+  SELECT id INTO alerta_id
+  FROM alertas
+  WHERE tipo = 'stock_bajo'
+    AND referencia_tabla = 'productos'
+    AND referencia_id = NEW.id
+  ORDER BY created_at DESC
+  LIMIT 1;
+
+  IF NEW.stock_actual > 3 THEN
+    IF alerta_id IS NOT NULL THEN
+      UPDATE alertas SET leida = true, updated_at = now() WHERE id = alerta_id;
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF alerta_id IS NULL THEN
+    INSERT INTO alertas (tipo, titulo, mensaje, nivel, leida, referencia_tabla, referencia_id)
+    VALUES (
+      'stock_bajo',
+      CASE WHEN NEW.stock_actual <= 0 THEN 'Producto agotado: ' || NEW.nombre ELSE 'Stock bajo: ' || NEW.nombre END,
+      CASE
+        WHEN NEW.stock_actual <= 0 THEN NEW.nombre || ' no tiene stock disponible. La tarjeta publica se mostrara como agotada.'
+        ELSE 'Quedan ' || NEW.stock_actual || ' unidades de ' || NEW.nombre || '. Reponer inventario para evitar quedar sin ventas.'
+      END,
+      CASE WHEN NEW.stock_actual <= 0 THEN 'critica' ELSE 'advertencia' END,
+      false,
+      'productos',
+      NEW.id
+    );
+  ELSE
+    UPDATE alertas
+    SET
+      titulo = CASE WHEN NEW.stock_actual <= 0 THEN 'Producto agotado: ' || NEW.nombre ELSE 'Stock bajo: ' || NEW.nombre END,
+      mensaje = CASE
+        WHEN NEW.stock_actual <= 0 THEN NEW.nombre || ' no tiene stock disponible. La tarjeta publica se mostrara como agotada.'
+        ELSE 'Quedan ' || NEW.stock_actual || ' unidades de ' || NEW.nombre || '. Reponer inventario para evitar quedar sin ventas.'
+      END,
+      nivel = CASE WHEN NEW.stock_actual <= 0 THEN 'critica' ELSE 'advertencia' END,
+      leida = false,
+      updated_at = now()
+    WHERE id = alerta_id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_permisos_updated_at BEFORE UPDATE ON permisos FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
@@ -555,6 +611,7 @@ CREATE TRIGGER trg_direcciones_clientes_updated_at BEFORE UPDATE ON direcciones_
 CREATE TRIGGER trg_categorias_updated_at BEFORE UPDATE ON categorias FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_subcategorias_updated_at BEFORE UPDATE ON subcategorias FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_productos_updated_at BEFORE UPDATE ON productos FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
+CREATE TRIGGER trg_productos_stock_alerta AFTER INSERT OR UPDATE OF stock_actual, nombre ON productos FOR EACH ROW EXECUTE FUNCTION sincronizar_alerta_stock_producto();
 CREATE TRIGGER trg_variantes_productos_updated_at BEFORE UPDATE ON variantes_productos FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_imagenes_productos_updated_at BEFORE UPDATE ON imagenes_productos FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_etiquetas_updated_at BEFORE UPDATE ON etiquetas FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
@@ -729,23 +786,23 @@ SELECT id, 'Frutales', 'Rellenos frescos con fruta', 2 FROM categorias WHERE nom
 INSERT INTO subcategorias (categoria_id, nombre, descripcion, orden)
 SELECT id, 'Decorados', 'Cupcakes con temática personalizada', 1 FROM categorias WHERE nombre = 'Cupcakes';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Torta de chocolate húmeda', 'torta-chocolate-humeda', 'Bizcocho húmedo de cacao con fudge casero', 95.00, 42.50, 2, true, 180
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Torta de chocolate húmeda', 'torta-chocolate-humeda', 'Bizcocho húmedo de cacao con fudge casero', 95.00, 42.50, 8, 3, true, 180
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Chocolate'
 WHERE c.nombre = 'Tortas';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Torta de vainilla con frutos rojos', 'torta-vainilla-frutos-rojos', 'Vainilla artesanal con crema ligera y frutos rojos', 110.00, 48.00, 2, true, 210
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Torta de vainilla con frutos rojos', 'torta-vainilla-frutos-rojos', 'Vainilla artesanal con crema ligera y frutos rojos', 110.00, 48.00, 3, 3, true, 210
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Frutales'
 WHERE c.nombre = 'Tortas';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Cupcakes surtidos x12', 'cupcakes-surtidos-x12', 'Docena de cupcakes de vainilla, chocolate y red velvet', 72.00, 29.40, 4, false, 120
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Cupcakes surtidos x12', 'cupcakes-surtidos-x12', 'Docena de cupcakes de vainilla, chocolate y red velvet', 72.00, 29.40, 0, 3, false, 120
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Decorados'
 WHERE c.nombre = 'Cupcakes';
 
-INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT id, 'Cheesecake de maracuyá', 'cheesecake-maracuya', 'Cheesecake cremoso con salsa de maracuyá natural', 88.00, 36.20, 2, true, 150
+INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
+SELECT id, 'Cheesecake de maracuyá', 'cheesecake-maracuya', 'Cheesecake cremoso con salsa de maracuyá natural', 88.00, 36.20, 6, 3, true, 150
 FROM categorias WHERE nombre = 'Postres';
 
 INSERT INTO variantes_productos (producto_id, nombre, sku, precio_adicional, costo_adicional, stock)

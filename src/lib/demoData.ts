@@ -39,10 +39,10 @@ export const demoCategorias: Categoria[] = [
 ];
 
 export const demoProductos: Producto[] = [
-  { id: 'prod-1', categoria_id: 'cat-tortas', subcategoria_id: null, nombre: 'Torta de chocolate húmeda', slug: 'torta-chocolate-humeda', descripcion: 'Bizcocho húmedo de cacao con fudge casero.', precio_venta: 95, costo_unitario: 42.5, margen: 52.5, stock_minimo: 2, disponible: true, destacado: true, tiempo_preparacion_min: 180, created_at: now, updated_at: now },
-  { id: 'prod-2', categoria_id: 'cat-tortas', subcategoria_id: null, nombre: 'Torta de vainilla con frutos rojos', slug: 'torta-vainilla-frutos-rojos', descripcion: 'Vainilla artesanal con crema ligera y frutos rojos.', precio_venta: 110, costo_unitario: 48, margen: 62, stock_minimo: 2, disponible: true, destacado: true, tiempo_preparacion_min: 210, created_at: now, updated_at: now },
-  { id: 'prod-3', categoria_id: 'cat-cupcakes', subcategoria_id: null, nombre: 'Cupcakes surtidos x12', slug: 'cupcakes-surtidos-x12', descripcion: 'Docena de cupcakes de vainilla, chocolate y red velvet.', precio_venta: 72, costo_unitario: 29.4, margen: 42.6, stock_minimo: 4, disponible: true, destacado: false, tiempo_preparacion_min: 120, created_at: now, updated_at: now },
-  { id: 'prod-4', categoria_id: 'cat-postres', subcategoria_id: null, nombre: 'Cheesecake de maracuyá', slug: 'cheesecake-maracuya', descripcion: 'Cheesecake cremoso con salsa de maracuyá natural.', precio_venta: 88, costo_unitario: 36.2, margen: 51.8, stock_minimo: 2, disponible: true, destacado: true, tiempo_preparacion_min: 150, created_at: now, updated_at: now },
+  { id: 'prod-1', categoria_id: 'cat-tortas', subcategoria_id: null, nombre: 'Torta de chocolate húmeda', slug: 'torta-chocolate-humeda', descripcion: 'Bizcocho húmedo de cacao con fudge casero.', precio_venta: 95, costo_unitario: 42.5, margen: 52.5, stock_actual: 8, stock_minimo: 3, disponible: true, destacado: true, tiempo_preparacion_min: 180, created_at: now, updated_at: now },
+  { id: 'prod-2', categoria_id: 'cat-tortas', subcategoria_id: null, nombre: 'Torta de vainilla con frutos rojos', slug: 'torta-vainilla-frutos-rojos', descripcion: 'Vainilla artesanal con crema ligera y frutos rojos.', precio_venta: 110, costo_unitario: 48, margen: 62, stock_actual: 3, stock_minimo: 3, disponible: true, destacado: true, tiempo_preparacion_min: 210, created_at: now, updated_at: now },
+  { id: 'prod-3', categoria_id: 'cat-cupcakes', subcategoria_id: null, nombre: 'Cupcakes surtidos x12', slug: 'cupcakes-surtidos-x12', descripcion: 'Docena de cupcakes de vainilla, chocolate y red velvet.', precio_venta: 72, costo_unitario: 29.4, margen: 42.6, stock_actual: 0, stock_minimo: 3, disponible: true, destacado: false, tiempo_preparacion_min: 120, created_at: now, updated_at: now },
+  { id: 'prod-4', categoria_id: 'cat-postres', subcategoria_id: null, nombre: 'Cheesecake de maracuyá', slug: 'cheesecake-maracuya', descripcion: 'Cheesecake cremoso con salsa de maracuyá natural.', precio_venta: 88, costo_unitario: 36.2, margen: 51.8, stock_actual: 6, stock_minimo: 3, disponible: true, destacado: true, tiempo_preparacion_min: 150, created_at: now, updated_at: now },
 ];
 
 export const demoImagenes: ImagenProducto[] = [
@@ -53,8 +53,9 @@ export const demoImagenes: ImagenProducto[] = [
 ];
 
 export const demoPromociones: Promocion[] = [
-  { id: 'promo-1', nombre: 'Bienvenida Kalú', descripcion: 'Descuento para primera compra web.', codigo: 'KALU10', tipo_descuento: 'porcentaje', valor: 10, fecha_inicio: now, fecha_fin: new Date(Date.now() + 45 * 86400000).toISOString(), activa: true, created_at: now, updated_at: now },
-  { id: 'promo-2', nombre: 'Delivery cercano gratis', descripcion: 'Envío gratis en Miraflores desde S/ 120.', codigo: 'CERCAKALU', tipo_descuento: 'envio_gratis', valor: 0, fecha_inicio: now, fecha_fin: new Date(Date.now() + 30 * 86400000).toISOString(), activa: true, created_at: now, updated_at: now },
+  { id: 'promo-1', nombre: 'Bienvenida Kalú', descripcion: 'Descuento para primera compra web.', codigo: 'KALU10', tipo: 'promocion', tipo_descuento: 'porcentaje', valor: 10, fecha_inicio: now, fecha_fin: new Date(Date.now() + 45 * 86400000).toISOString(), activa: true, created_at: now, updated_at: now },
+  { id: 'promo-2', nombre: 'Delivery cercano gratis', descripcion: 'Envío gratis en Miraflores desde S/ 120.', codigo: 'CERCAKALU', tipo: 'promocion', tipo_descuento: 'envio_gratis', valor: 0, fecha_inicio: now, fecha_fin: new Date(Date.now() + 30 * 86400000).toISOString(), activa: true, created_at: now, updated_at: now },
+  { id: 'oferta-1', nombre: 'Oferta relampago cuchareables', descripcion: 'Oferta por tiempo limitado para cuchareables seleccionados.', codigo: 'OFERTAICA', tipo: 'oferta', tipo_descuento: 'monto_fijo', valor: 2, fecha_inicio: now, fecha_fin: new Date(Date.now() + 2 * 86400000).toISOString(), activa: true, created_at: now, updated_at: now },
 ];
 
 export const demoClientes: Cliente[] = [
@@ -99,7 +100,8 @@ export const demoMovimientos: MovimientoInventario[] = [
 ];
 
 export const demoAlertas: Alerta[] = [
-  { id: 'ale-1', tipo: 'stock_bajo', titulo: 'Mantequilla por debajo del mínimo', mensaje: 'El stock actual de mantequilla sin sal está por debajo del mínimo configurado.', nivel: 'advertencia', leida: false, referencia_tabla: 'insumos', referencia_id: 'ins-3', created_at: now, updated_at: now },
+  { id: 'ale-1', tipo: 'stock_bajo', titulo: 'Stock bajo: Torta de vainilla con frutos rojos', mensaje: 'Quedan 3 unidades de Torta de vainilla con frutos rojos. Reponer inventario para evitar quedar sin ventas.', nivel: 'advertencia', leida: false, referencia_tabla: 'productos', referencia_id: 'prod-2', created_at: now, updated_at: now },
+  { id: 'ale-2', tipo: 'stock_bajo', titulo: 'Producto agotado: Cupcakes surtidos x12', mensaje: 'Cupcakes surtidos x12 no tiene stock disponible. La tarjeta publica se muestra como agotada.', nivel: 'critica', leida: false, referencia_tabla: 'productos', referencia_id: 'prod-3', created_at: now, updated_at: now },
 ];
 
 export const demoProducciones: Produccion[] = [

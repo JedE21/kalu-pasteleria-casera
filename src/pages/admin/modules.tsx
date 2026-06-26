@@ -1,10 +1,10 @@
 import { AdminCrudPage, badgeColumn, moneyColumn, textColumn, type CrudModule } from '../../components/dashboard/AdminCrudPage';
-import type { Alerta, Categoria, Cliente, Entrega, Gasto, Insumo, Pago, Pedido, Produccion, Producto, Promocion, Receta, Repartidor, Sucursal, Usuario } from '../../types/esquema';
+import type { Alerta, Categoria, Cliente, Entrega, Gasto, Pago, Pedido, Produccion, Producto, Promocion, Receta, Repartidor, Sucursal, Usuario } from '../../types/esquema';
 import { crearCategoria, editarCategoria, eliminarCategoria, obtenerCategorias } from '../../lib/queries/categorias';
 import { crearCliente, editarCliente, eliminarCliente, obtenerClientes } from '../../lib/queries/clientes';
 import { crearEntrega, crearRepartidor, editarEntrega, eliminarEntrega, obtenerEntregas, obtenerRepartidores } from '../../lib/queries/delivery';
 import { crearGasto, crearIngreso, editarPago, obtenerGastos, obtenerIngresos, obtenerPagos } from '../../lib/queries/finanzas';
-import { crearInsumo, editarInsumo, eliminarInsumo, obtenerInsumos, obtenerMovimientosInventario, obtenerProveedores } from '../../lib/queries/inventario';
+import { editarInventarioProducto, obtenerInventarioProductos, obtenerMovimientosInventario, obtenerProveedores, type ProductoInventario } from '../../lib/queries/inventario';
 import { crearPedido, editarPedido, eliminarPedido, obtenerPedidos } from '../../lib/queries/pedidos';
 import { crearProduccion, editarProduccion, eliminarProduccion, obtenerProducciones } from '../../lib/queries/produccion';
 import { crearProducto, editarProducto, eliminarProducto, obtenerProductos } from '../../lib/queries/productos';
@@ -41,14 +41,14 @@ export function ProductosAdminPage() {
     create: crearProductoDashboard,
     update: editarProducto,
     remove: eliminarProducto,
-    columns: [textColumn('nombre', 'Producto'), moneyColumn('precio_venta', 'Precio'), moneyColumn('costo_unitario', 'Costo'), moneyColumn('margen', 'Margen'), badgeColumn('disponible', 'Disponible'), badgeColumn('destacado', 'Destacado')],
+    columns: [textColumn('nombre', 'Producto'), moneyColumn('precio_venta', 'Precio'), moneyColumn('costo_unitario', 'Costo'), moneyColumn('margen', 'Margen'), textColumn('stock_actual', 'Stock'), badgeColumn('disponible', 'Disponible'), badgeColumn('destacado', 'Destacado')],
     fields: [
       { name: 'categoria_id', label: 'Categoría', type: 'select', required: true, options: categoriasOptions },
       { name: 'nombre', label: 'Nombre', required: true },
       { name: 'descripcion', label: 'Descripción', type: 'textarea' },
       { name: 'precio_venta', label: 'Precio venta', type: 'number', required: true },
       { name: 'costo_unitario', label: 'Costo unitario', type: 'number', required: true },
-      { name: 'stock_minimo', label: 'Stock mínimo', type: 'number' },
+      { name: 'stock_actual', label: 'Stock actual', type: 'number', step: '1', inputMode: 'numeric' },
       { name: 'disponible', label: 'Disponible', type: 'boolean' },
       { name: 'destacado', label: 'Destacado', type: 'boolean' },
       { name: 'tiempo_preparacion_min', label: 'Tiempo preparación min', type: 'number' },
@@ -91,8 +91,8 @@ export function PromocionesAdminPage() {
     create: crearPromocion,
     update: editarPromocion,
     remove: eliminarPromocion,
-    columns: [textColumn('nombre', 'Promoción'), textColumn('codigo', 'Código'), badgeColumn('tipo_descuento', 'Tipo'), moneyColumn('valor', 'Valor'), badgeColumn('activa', 'Activa')],
-    fields: [{ name: 'nombre', label: 'Nombre', required: true }, { name: 'descripcion', label: 'Descripción', type: 'textarea' }, { name: 'codigo', label: 'Código' }, { name: 'tipo_descuento', label: 'Tipo descuento', type: 'select', options: [{ label: 'Porcentaje', value: 'porcentaje' }, { label: 'Monto fijo', value: 'monto_fijo' }, { label: 'Envío gratis', value: 'envio_gratis' }] }, { name: 'valor', label: 'Valor', type: 'number' }, { name: 'fecha_inicio', label: 'Fecha inicio', type: 'datetime' }, { name: 'fecha_fin', label: 'Fecha fin', type: 'datetime' }, { name: 'activa', label: 'Activa', type: 'boolean' }],
+    columns: [textColumn('nombre', 'Promoción'), badgeColumn('tipo', 'Clase'), textColumn('codigo', 'Código'), badgeColumn('tipo_descuento', 'Tipo'), moneyColumn('valor', 'Valor'), badgeColumn('activa', 'Activa')],
+    fields: [{ name: 'nombre', label: 'Nombre', required: true }, { name: 'descripcion', label: 'Descripción', type: 'textarea' }, { name: 'codigo', label: 'Código' }, { name: 'tipo', label: 'Clase', type: 'select', options: [{ label: 'Promoción', value: 'promocion' }, { label: 'Oferta', value: 'oferta' }] }, { name: 'tipo_descuento', label: 'Tipo descuento', type: 'select', options: [{ label: 'Porcentaje', value: 'porcentaje' }, { label: 'Monto fijo', value: 'monto_fijo' }, { label: 'Envío gratis', value: 'envio_gratis' }] }, { name: 'valor', label: 'Valor', type: 'number' }, { name: 'fecha_inicio', label: 'Fecha inicio', type: 'datetime' }, { name: 'fecha_fin', label: 'Fecha fin', type: 'datetime' }, { name: 'activa', label: 'Activa', type: 'boolean' }],
   };
   return <AdminCrudPage module={module} />;
 }
@@ -171,16 +171,14 @@ export function ProduccionAdminPage() {
 }
 
 export function InventarioAdminPage() {
-  const module: CrudModule<Insumo> = {
+  const module: CrudModule<ProductoInventario> = {
     title: 'Inventario',
-    description: 'CRUD de `insumos`; movimientos en `movimientos_inventario`.',
-    tableName: 'insumos',
-    loader: obtenerInsumos,
-    create: crearInsumo,
-    update: editarInsumo,
-    remove: eliminarInsumo,
-    columns: [textColumn('nombre', 'Insumo'), textColumn('unidad_medida', 'Unidad'), moneyColumn('costo_unitario', 'Costo'), textColumn('stock_actual', 'Stock'), textColumn('stock_minimo', 'Mínimo'), badgeColumn('activo', 'Activo')],
-    fields: [{ name: 'proveedor_id', label: 'proveedor_id' }, { name: 'nombre', label: 'Nombre', required: true }, { name: 'unidad_medida', label: 'Unidad', required: true }, { name: 'costo_unitario', label: 'Costo unitario', type: 'number' }, { name: 'stock_actual', label: 'Stock actual', type: 'number' }, { name: 'stock_minimo', label: 'Stock mínimo', type: 'number' }, { name: 'perecible', label: 'Perecible', type: 'boolean' }, { name: 'activo', label: 'Activo', type: 'boolean' }],
+    description: 'Stock de productos vendidos por categoria. Al llegar a 3 unidades o menos se muestra una alerta de stock bajo.',
+    tableName: 'productos',
+    loader: obtenerInventarioProductos,
+    update: editarInventarioProducto,
+    columns: [textColumn('categoria_nombre', 'Categoria'), textColumn('nombre', 'Producto'), textColumn('stock_actual', 'Stock'), badgeColumn('disponible', 'Disponible')],
+    fields: [{ name: 'stock_actual', label: 'Stock actual', type: 'number', step: '1', inputMode: 'numeric' }, { name: 'disponible', label: 'Disponible', type: 'boolean' }],
   };
   return <AdminCrudPage module={module} />;
 }

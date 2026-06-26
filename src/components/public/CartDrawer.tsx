@@ -114,11 +114,11 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <img className="h-20 w-20 rounded-md object-cover" src={item.product.imagen} alt={item.product.nombre} />
                 <div className="min-w-0 flex-1">
                   <strong className="text-sm text-ciruela dark:text-crema">{item.product.nombre}</strong>
-                  <p className="m-0 text-xs text-chocolate/65 dark:text-crema/65">{item.product.categoria} · {soles(item.product.precio)}</p>
+                  <p className="m-0 text-xs text-chocolate/65 dark:text-crema/65">{item.product.categoria} · {soles(item.product.precio)} · Stock: {item.product.stock}</p>
                   <div className="mt-3 flex items-center gap-2">
                     <Button className="h-8 w-8 px-0" variant="ghost" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
                     <span className="w-8 text-center font-bold">{item.quantity}</span>
-                    <Button className="h-8 w-8 px-0" variant="ghost" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                    <Button className="h-8 w-8 px-0" variant="ghost" disabled={item.quantity >= item.product.stock} onClick={() => updateQuantity(item.product.id, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
                     <Button className="ml-auto h-8 w-8 px-0" variant="ghost" onClick={() => removeItem(item.product.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>

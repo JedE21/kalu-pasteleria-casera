@@ -39,6 +39,7 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
     promoCuchareable: categoriaId === 'cuchareables' && !nombreNormalizado.includes('pistacho'),
     consultable,
     destacado: producto.destacado,
+    stock: Number(producto.stock_actual ?? 0),
   };
 }
 

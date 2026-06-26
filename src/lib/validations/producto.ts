@@ -9,6 +9,7 @@ export const productoSchema = z.object({
   descripcion: z.string().nullable().optional(),
   precio_venta: z.coerce.number().min(0),
   costo_unitario: z.coerce.number().min(0),
+  stock_actual: z.coerce.number().int().min(0).default(0),
   stock_minimo: z.coerce.number().int().min(0).default(0),
   disponible: z.boolean().default(true),
   destacado: z.boolean().default(false),

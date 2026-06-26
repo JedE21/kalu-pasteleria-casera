@@ -11,6 +11,7 @@ import { CartDrawer } from '../public/CartDrawer';
 const nav = [
   { to: '/', label: 'Inicio' },
   { to: '/productos', label: 'Productos' },
+  { to: '/ofertas', label: 'Ofertas' },
   { to: '/promociones', label: 'Promociones' },
   { to: '/nosotros', label: 'Nosotros' },
   { to: '/contacto', label: 'Contacto' },

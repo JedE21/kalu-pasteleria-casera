@@ -65,18 +65,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const addItem = useCallback((product: KaluProduct) => {
-    if (product.precio === null) return;
+    if (product.precio === null || product.stock <= 0) return;
     setItems((current) => {
       const existing = current.find((item) => item.product.id === product.id);
       if (existing) {
-        return current.map((item) => item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+        return current.map((item) => item.product.id === product.id ? { ...item, quantity: Math.min(product.stock, item.quantity + 1) } : item);
       }
       return [...current, { product, quantity: 1 }];
     });
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
-    setItems((current) => current.map((item) => item.product.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item));
+    setItems((current) => current.map((item) => item.product.id === productId ? { ...item, quantity: Math.min(item.product.stock, Math.max(1, quantity)) } : item));
   }, []);
 
   const removeItem = useCallback((productId: string) => {

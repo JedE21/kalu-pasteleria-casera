@@ -16,7 +16,7 @@ export function AdminDashboardPage() {
   const resumen = data.resumen.data;
   const pedidos = data.pedidos.data;
   const metricas = data.metricas.data;
-  const insumosBajos = data.insumos.data.filter((item) => item.stock_actual <= item.stock_minimo);
+  const productosBajos = data.productos.data.filter((item) => item.stock_actual <= 3);
 
   return (
     <section className="grid gap-5">
@@ -30,7 +30,7 @@ export function AdminDashboardPage() {
         <StatCard label="Clientes" value={resumen.clientes_totales} icon={<Users className="h-4 w-4" />} />
         <StatCard label="Gastos" value={soles(resumen.gastos_acumulados)} icon={<Wallet className="h-4 w-4" />} />
         <StatCard label="Alertas" value={resumen.alertas_pendientes} icon={<AlertTriangle className="h-4 w-4" />} />
-        <StatCard label="Stock bajo" value={insumosBajos.length} icon={<CakeSlice className="h-4 w-4" />} />
+        <StatCard label="Stock bajo" value={productosBajos.length} icon={<CakeSlice className="h-4 w-4" />} />
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         <Card>

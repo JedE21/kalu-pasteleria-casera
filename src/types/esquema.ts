@@ -38,6 +38,7 @@ export interface Producto extends BaseRow {
   precio_venta: number;
   costo_unitario: number;
   margen: number;
+  stock_actual: number;
   stock_minimo: number;
   disponible: boolean;
   destacado: boolean;
@@ -76,6 +77,7 @@ export interface Promocion extends BaseRow {
   nombre: string;
   descripcion: string | null;
   codigo: string | null;
+  tipo: 'promocion' | 'oferta';
   tipo_descuento: 'porcentaje' | 'monto_fijo' | 'envio_gratis';
   valor: number;
   fecha_inicio: string;

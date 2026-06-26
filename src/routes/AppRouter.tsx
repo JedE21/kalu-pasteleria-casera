@@ -5,6 +5,7 @@ import { HomePage } from '../pages/public/HomePage';
 import { CatalogPage } from '../pages/public/CatalogPage';
 import { ProductDetailPage } from '../pages/public/ProductDetailPage';
 import { PromotionsPage } from '../pages/public/PromotionsPage';
+import { OffersPage } from '../pages/public/OffersPage';
 import { AboutPage } from '../pages/public/AboutPage';
 import { ContactPage } from '../pages/public/ContactPage';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
@@ -39,6 +40,7 @@ export function AppRouter() {
           <Route path="productos" element={<CatalogPage />} />
           <Route path="producto/:id" element={<ProductDetailPage />} />
           <Route path="promociones" element={<PromotionsPage />} />
+          <Route path="ofertas" element={<OffersPage />} />
           <Route path="nosotros" element={<AboutPage />} />
           <Route path="contacto" element={<ContactPage />} />
         </Route>
