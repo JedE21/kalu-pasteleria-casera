@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { kaluCategories, kaluProducts, type KaluCategory, type KaluCategoryId, type KaluProduct } from '../config/kaluCatalog';
+import { obtenerCategorias } from '../lib/queries/categorias';
 import { obtenerCatalogoPublico, type ProductoCatalogoPublico } from '../lib/queries/productos';
 import { supabase, supabaseConfig } from '../lib/supabase';
-import { normalizarTexto } from '../lib/utils';
+import { normalizarTexto, slugify } from '../lib/utils';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=900&q=85';
 
@@ -14,18 +15,19 @@ function categoryIdFromName(nombre: string): KaluCategoryId | null {
   if (value.includes('personalizada')) return 'personalizadas';
   if (value.includes('bocadito')) return 'bocaditos';
   if (value.includes('keke')) return 'kekes';
-  return null;
+  return slugify(nombre);
 }
 
 function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
   const categoriaNombre = producto.categorias?.nombre ?? '';
-  const categoriaId = categoryIdFromName(categoriaNombre);
+  const categoriaId = producto.categorias?.id ?? categoryIdFromName(categoriaNombre);
   if (!categoriaId) return null;
 
   const principal = producto.imagenes_productos
     ?.filter((imagen) => imagen.principal)
     .sort((a, b) => a.orden - b.orden)[0] ?? producto.imagenes_productos?.[0];
-  const consultable = categoriaId === 'personalizadas' || Number(producto.precio_venta) <= 0;
+  const categoriaNormalizada = normalizarTexto(categoriaNombre);
+  const consultable = categoriaNormalizada.includes('personalizada') || Number(producto.precio_venta) <= 0;
   const nombreNormalizado = normalizarTexto(producto.nombre);
   const ofertaFechaFin = producto.oferta_fecha_fin ?? null;
   const ofertaActiva = Boolean(producto.oferta_activa && ofertaFechaFin && new Date(ofertaFechaFin).getTime() > Date.now());
@@ -38,7 +40,7 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
     categoria: categoriaNombre,
     descripcion: producto.descripcion ?? '',
     imagen: principal?.url || fallbackImage,
-    promoCuchareable: categoriaId === 'cuchareables' && !nombreNormalizado.includes('pistacho'),
+    promoCuchareable: categoriaNormalizada.includes('cuchareable') && !nombreNormalizado.includes('pistacho'),
     consultable,
     destacado: producto.destacado,
     stock: Number(producto.stock_actual ?? 0),
@@ -50,25 +52,39 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
 
 export function useCatalogoPublico() {
   const [products, setProducts] = useState<KaluProduct[]>(kaluProducts);
+  const [categories, setCategories] = useState<KaluCategory[]>(kaluCategories);
   const [loading, setLoading] = useState(Boolean(supabaseConfig.isConfigured));
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!supabaseConfig.isConfigured) {
       setProducts(kaluProducts);
+      setCategories(kaluCategories);
       setLoading(false);
       return;
     }
 
     setLoading(true);
     setError(null);
-    const result = await obtenerCatalogoPublico();
-    if (result.error) {
-      setError(result.error);
+    const [productsResult, categoriesResult] = await Promise.all([
+      obtenerCatalogoPublico(),
+      obtenerCategorias(),
+    ]);
+    if (productsResult.error || categoriesResult.error) {
+      setError(productsResult.error ?? categoriesResult.error);
       setProducts(kaluProducts);
+      setCategories(kaluCategories);
     } else {
-      const mapped = result.data.map(mapProduct).filter(Boolean) as KaluProduct[];
+      const mapped = productsResult.data.map(mapProduct).filter(Boolean) as KaluProduct[];
+      const mappedCategories = categoriesResult.data
+        .filter((categoria) => categoria.activa)
+        .map((categoria) => ({
+          id: categoria.id,
+          nombre: categoria.nombre,
+          descripcion: categoria.descripcion ?? '',
+        }));
       setProducts(mapped.length ? mapped : kaluProducts);
+      setCategories(mappedCategories.length ? mappedCategories : kaluCategories);
     }
     setLoading(false);
   }, []);
@@ -91,8 +107,6 @@ export function useCatalogoPublico() {
       void client.removeChannel(channel);
     };
   }, [load]);
-
-  const categories = useMemo<KaluCategory[]>(() => kaluCategories, []);
 
   return { products, categories, loading, error, refetch: load };
 }

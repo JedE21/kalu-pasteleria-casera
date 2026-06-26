@@ -62,7 +62,7 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 py-8 md:grid-cols-3">
-        {kaluCategories.slice(0, 3).map((categoria) => (
+        {kaluCategories.map((categoria) => (
           <Card key={categoria.id}>
             <CardContent className="grid gap-3">
               <Sparkles className="h-6 w-6 text-dorado" />

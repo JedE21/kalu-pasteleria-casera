@@ -1,4 +1,4 @@
-export type KaluCategoryId = 'cuchareables' | 'tortas-cuarto' | 'tortas-kilo' | 'personalizadas' | 'bocaditos' | 'kekes';
+export type KaluCategoryId = string;
 
 export interface KaluCategory {
   id: KaluCategoryId;
