@@ -7,10 +7,13 @@ import { soles, whatsappLink } from '../../lib/utils';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { OfferCountdown } from './OfferCountdown';
 
 export function KaluProductCard({ product }: { product: KaluProduct }) {
   const { addItem } = useCart();
   const agotado = product.stock <= 0;
+  const tieneOferta = Boolean(product.ofertaActiva && product.ofertaPrecio !== null && product.ofertaFechaFin);
+  const precioVisible = tieneOferta ? product.ofertaPrecio : product.precio;
 
   function add() {
     if (agotado) {
@@ -32,7 +35,7 @@ export function KaluProductCard({ product }: { product: KaluProduct }) {
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <Badge tone="warning">{product.categoria}</Badge>
-          {agotado ? <Badge tone="danger">Agotado</Badge> : product.promoCuchareable ? <Badge tone="success">Promo</Badge> : null}
+          {agotado ? <Badge tone="danger">Agotado</Badge> : tieneOferta ? <Badge tone="danger">Oferta</Badge> : product.promoCuchareable ? <Badge tone="success">Promo</Badge> : null}
         </div>
         <div className="flex-1">
           <h3 className="m-0 text-base font-extrabold text-ciruela dark:text-crema">{product.nombre}</h3>
@@ -41,8 +44,12 @@ export function KaluProductCard({ product }: { product: KaluProduct }) {
         <p className={`m-0 text-sm font-bold ${agotado ? 'text-zinc-600 dark:text-zinc-300' : 'text-chocolate/70 dark:text-crema/70'}`}>
           Stock: {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}
         </p>
+        {tieneOferta && product.ofertaFechaFin ? <OfferCountdown fechaFin={product.ofertaFechaFin} compact /> : null}
         <div className="flex items-center justify-between gap-3">
-          <strong className="text-lg text-morado dark:text-lila">{product.precio === null ? 'Consultar' : soles(product.precio)}</strong>
+          <div className="grid">
+            {tieneOferta && product.precio !== null ? <span className="text-sm font-bold text-chocolate/45 line-through dark:text-crema/45">{soles(product.precio)}</span> : null}
+            <strong className="text-lg text-morado dark:text-lila">{precioVisible === null ? 'Consultar' : soles(precioVisible ?? 0)}</strong>
+          </div>
           {agotado ? (
             <Button variant="ghost" disabled>Agotado</Button>
           ) : product.consultable ? (

@@ -41,7 +41,7 @@ export function ProductosAdminPage() {
     create: crearProductoDashboard,
     update: editarProducto,
     remove: eliminarProducto,
-    columns: [textColumn('nombre', 'Producto'), moneyColumn('precio_venta', 'Precio'), moneyColumn('costo_unitario', 'Costo'), moneyColumn('margen', 'Margen'), textColumn('stock_actual', 'Stock'), badgeColumn('disponible', 'Disponible'), badgeColumn('destacado', 'Destacado')],
+    columns: [textColumn('nombre', 'Producto'), moneyColumn('precio_venta', 'Precio'), moneyColumn('costo_unitario', 'Costo'), moneyColumn('margen', 'Margen'), textColumn('stock_actual', 'Stock'), badgeColumn('oferta_activa', 'Oferta'), badgeColumn('disponible', 'Disponible'), badgeColumn('destacado', 'Destacado')],
     fields: [
       { name: 'categoria_id', label: 'Categoría', type: 'select', required: true, options: categoriasOptions },
       { name: 'nombre', label: 'Nombre', required: true },
@@ -49,6 +49,9 @@ export function ProductosAdminPage() {
       { name: 'precio_venta', label: 'Precio venta', type: 'number', required: true },
       { name: 'costo_unitario', label: 'Costo unitario', type: 'number', required: true },
       { name: 'stock_actual', label: 'Stock actual', type: 'number', step: '1', inputMode: 'numeric' },
+      { name: 'oferta_activa', label: 'En oferta', type: 'boolean' },
+      { name: 'oferta_precio', label: 'Precio oferta', type: 'number' },
+      { name: 'oferta_fecha_fin', label: 'Oferta termina', type: 'datetime' },
       { name: 'disponible', label: 'Disponible', type: 'boolean' },
       { name: 'destacado', label: 'Destacado', type: 'boolean' },
       { name: 'tiempo_preparacion_min', label: 'Tiempo preparación min', type: 'number' },

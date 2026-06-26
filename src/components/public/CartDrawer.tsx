@@ -50,7 +50,10 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
       checkout.tipoEntrega === 'delivery' && checkout.latitud && checkout.longitud ? `Coordenadas: ${checkout.latitud.toFixed(6)}, ${checkout.longitud.toFixed(6)}` : null,
       '',
       'Productos:',
-      ...items.map((item) => `- ${item.quantity} x ${item.product.nombre} (${item.product.categoria}) - ${soles((item.product.precio ?? 0) * item.quantity)}`),
+      ...items.map((item) => {
+        const precio = item.product.ofertaActiva && item.product.ofertaPrecio !== null ? item.product.ofertaPrecio : item.product.precio;
+        return `- ${item.quantity} x ${item.product.nombre} (${item.product.categoria}) - ${soles((precio ?? 0) * item.quantity)}`;
+      }),
       '',
       `Subtotal: ${soles(totals.subtotal)}`,
       totals.discount > 0 ? `Descuento cuchareables: -${soles(totals.discount)}` : null,
@@ -114,7 +117,9 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <img className="h-20 w-20 rounded-md object-cover" src={item.product.imagen} alt={item.product.nombre} />
                 <div className="min-w-0 flex-1">
                   <strong className="text-sm text-ciruela dark:text-crema">{item.product.nombre}</strong>
-                  <p className="m-0 text-xs text-chocolate/65 dark:text-crema/65">{item.product.categoria} · {soles(item.product.precio)} · Stock: {item.product.stock}</p>
+                  <p className="m-0 text-xs text-chocolate/65 dark:text-crema/65">
+                    {item.product.categoria} · {soles(item.product.ofertaActiva && item.product.ofertaPrecio !== null ? item.product.ofertaPrecio : item.product.precio)} · Stock: {item.product.stock}
+                  </p>
                   <div className="mt-3 flex items-center gap-2">
                     <Button className="h-8 w-8 px-0" variant="ghost" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
                     <span className="w-8 text-center font-bold">{item.quantity}</span>

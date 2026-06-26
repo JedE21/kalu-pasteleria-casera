@@ -27,6 +27,8 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
     .sort((a, b) => a.orden - b.orden)[0] ?? producto.imagenes_productos?.[0];
   const consultable = categoriaId === 'personalizadas' || Number(producto.precio_venta) <= 0;
   const nombreNormalizado = normalizarTexto(producto.nombre);
+  const ofertaFechaFin = producto.oferta_fecha_fin ?? null;
+  const ofertaActiva = Boolean(producto.oferta_activa && ofertaFechaFin && new Date(ofertaFechaFin).getTime() > Date.now());
 
   return {
     id: producto.slug || producto.id,
@@ -40,6 +42,9 @@ function mapProduct(producto: ProductoCatalogoPublico): KaluProduct | null {
     consultable,
     destacado: producto.destacado,
     stock: Number(producto.stock_actual ?? 0),
+    ofertaActiva,
+    ofertaPrecio: ofertaActiva && producto.oferta_precio !== null ? Number(producto.oferta_precio) : null,
+    ofertaFechaFin,
   };
 }
 

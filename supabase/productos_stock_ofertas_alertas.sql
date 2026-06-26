@@ -1,10 +1,16 @@
 ALTER TABLE productos
   ADD COLUMN IF NOT EXISTS stock_actual integer NOT NULL DEFAULT 0 CHECK (stock_actual >= 0);
 
+ALTER TABLE productos
+  ADD COLUMN IF NOT EXISTS oferta_activa boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS oferta_precio numeric(10, 2) CHECK (oferta_precio IS NULL OR oferta_precio >= 0),
+  ADD COLUMN IF NOT EXISTS oferta_fecha_fin timestamptz;
+
 ALTER TABLE promociones
   ADD COLUMN IF NOT EXISTS tipo text NOT NULL DEFAULT 'promocion' CHECK (tipo IN ('promocion', 'oferta'));
 
 CREATE INDEX IF NOT EXISTS idx_productos_stock_actual ON productos(stock_actual);
+CREATE INDEX IF NOT EXISTS idx_productos_oferta ON productos(oferta_activa, oferta_fecha_fin);
 CREATE INDEX IF NOT EXISTS idx_promociones_tipo_fechas ON promociones(tipo, activa, fecha_inicio, fecha_fin);
 
 CREATE OR REPLACE FUNCTION sincronizar_alerta_stock_producto()

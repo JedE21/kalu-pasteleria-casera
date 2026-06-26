@@ -18,6 +18,9 @@ export interface KaluProduct {
   consultable: boolean;
   destacado?: boolean;
   stock: number;
+  ofertaActiva?: boolean;
+  ofertaPrecio?: number | null;
+  ofertaFechaFin?: string | null;
 }
 
 export interface PickupPoint {
@@ -79,6 +82,9 @@ function product(id: string, nombre: string, precio: number | null, categoriaId:
     promoCuchareable: categoriaId === 'cuchareables' && cuchareableNames.includes(nombre),
     consultable: precio === null,
     stock: 8,
+    ofertaActiva: false,
+    ofertaPrecio: null,
+    ofertaFechaFin: null,
     ...options,
   };
 }

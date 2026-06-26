@@ -40,6 +40,9 @@ export interface Producto extends BaseRow {
   margen: number;
   stock_actual: number;
   stock_minimo: number;
+  oferta_activa: boolean;
+  oferta_precio: number | null;
+  oferta_fecha_fin: string | null;
   disponible: boolean;
   destacado: boolean;
   tiempo_preparacion_min: number;

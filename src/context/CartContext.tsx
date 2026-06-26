@@ -28,7 +28,10 @@ const CartContext = createContext<CartContextValue | null>(null);
 const storageKey = 'kalu_cart_v1';
 
 function calculateTotals(items: CartItem[]): CartTotals {
-  const subtotal = items.reduce((sum, item) => sum + (item.product.precio ?? 0) * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => {
+    const precio = item.product.ofertaActiva && item.product.ofertaPrecio !== null ? item.product.ofertaPrecio : item.product.precio;
+    return sum + (precio ?? 0) * item.quantity;
+  }, 0);
   const promoEligibleUnits = items.filter((item) => item.product.promoCuchareable).reduce((sum, item) => sum + item.quantity, 0);
   const promoGroupsOfThree = Math.floor(promoEligibleUnits / 3);
   const remainingAfterThree = promoEligibleUnits % 3;

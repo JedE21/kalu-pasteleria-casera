@@ -53,7 +53,7 @@ export const columnasPrincipales: Record<TablaContrato, string[]> = {
   direcciones_clientes: ['id', 'cliente_id', 'direccion', 'principal'],
   categorias: ['id', 'nombre', 'activa'],
   subcategorias: ['id', 'categoria_id', 'nombre', 'activa'],
-  productos: ['id', 'categoria_id', 'nombre', 'precio_venta', 'margen', 'stock_actual', 'disponible', 'destacado'],
+  productos: ['id', 'categoria_id', 'nombre', 'precio_venta', 'margen', 'stock_actual', 'oferta_activa', 'oferta_precio', 'oferta_fecha_fin', 'disponible', 'destacado'],
   variantes_productos: ['id', 'producto_id', 'nombre', 'stock', 'activa'],
   imagenes_productos: ['id', 'producto_id', 'url', 'principal'],
   etiquetas: ['id', 'nombre', 'color'],

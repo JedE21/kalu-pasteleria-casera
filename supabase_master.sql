@@ -197,6 +197,9 @@ CREATE TABLE productos (
   margen numeric(10, 2) GENERATED ALWAYS AS (precio_venta - costo_unitario) STORED,
   stock_actual integer NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
   stock_minimo integer NOT NULL DEFAULT 0,
+  oferta_activa boolean NOT NULL DEFAULT false,
+  oferta_precio numeric(10, 2) CHECK (oferta_precio IS NULL OR oferta_precio >= 0),
+  oferta_fecha_fin timestamptz,
   disponible boolean NOT NULL DEFAULT true,
   destacado boolean NOT NULL DEFAULT false,
   tiempo_preparacion_min integer NOT NULL DEFAULT 60,
@@ -539,6 +542,7 @@ CREATE TABLE predicciones_ventas (
 CREATE INDEX idx_productos_categoria_id ON productos(categoria_id);
 CREATE INDEX idx_productos_subcategoria_id ON productos(subcategoria_id);
 CREATE INDEX idx_productos_stock_actual ON productos(stock_actual);
+CREATE INDEX idx_productos_oferta ON productos(oferta_activa, oferta_fecha_fin);
 CREATE INDEX idx_promociones_tipo_fechas ON promociones(tipo, activa, fecha_inicio, fecha_fin);
 CREATE INDEX idx_pedidos_cliente_id ON pedidos(cliente_id);
 CREATE INDEX idx_pedidos_estado ON pedidos(estado);
@@ -786,23 +790,23 @@ SELECT id, 'Frutales', 'Rellenos frescos con fruta', 2 FROM categorias WHERE nom
 INSERT INTO subcategorias (categoria_id, nombre, descripcion, orden)
 SELECT id, 'Decorados', 'Cupcakes con temática personalizada', 1 FROM categorias WHERE nombre = 'Cupcakes';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Torta de chocolate húmeda', 'torta-chocolate-humeda', 'Bizcocho húmedo de cacao con fudge casero', 95.00, 42.50, 8, 3, true, 180
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, oferta_activa, oferta_precio, oferta_fecha_fin, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Torta de chocolate húmeda', 'torta-chocolate-humeda', 'Bizcocho húmedo de cacao con fudge casero', 95.00, 42.50, 8, 3, false, null, null, true, 180
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Chocolate'
 WHERE c.nombre = 'Tortas';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Torta de vainilla con frutos rojos', 'torta-vainilla-frutos-rojos', 'Vainilla artesanal con crema ligera y frutos rojos', 110.00, 48.00, 3, 3, true, 210
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, oferta_activa, oferta_precio, oferta_fecha_fin, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Torta de vainilla con frutos rojos', 'torta-vainilla-frutos-rojos', 'Vainilla artesanal con crema ligera y frutos rojos', 110.00, 48.00, 3, 3, true, 89.00, now() + interval '2 days', true, 210
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Frutales'
 WHERE c.nombre = 'Tortas';
 
-INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT c.id, s.id, 'Cupcakes surtidos x12', 'cupcakes-surtidos-x12', 'Docena de cupcakes de vainilla, chocolate y red velvet', 72.00, 29.40, 0, 3, false, 120
+INSERT INTO productos (categoria_id, subcategoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, oferta_activa, oferta_precio, oferta_fecha_fin, destacado, tiempo_preparacion_min)
+SELECT c.id, s.id, 'Cupcakes surtidos x12', 'cupcakes-surtidos-x12', 'Docena de cupcakes de vainilla, chocolate y red velvet', 72.00, 29.40, 0, 3, false, null, null, false, 120
 FROM categorias c JOIN subcategorias s ON s.categoria_id = c.id AND s.nombre = 'Decorados'
 WHERE c.nombre = 'Cupcakes';
 
-INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, destacado, tiempo_preparacion_min)
-SELECT id, 'Cheesecake de maracuyá', 'cheesecake-maracuya', 'Cheesecake cremoso con salsa de maracuyá natural', 88.00, 36.20, 6, 3, true, 150
+INSERT INTO productos (categoria_id, nombre, slug, descripcion, precio_venta, costo_unitario, stock_actual, stock_minimo, oferta_activa, oferta_precio, oferta_fecha_fin, destacado, tiempo_preparacion_min)
+SELECT id, 'Cheesecake de maracuyá', 'cheesecake-maracuya', 'Cheesecake cremoso con salsa de maracuyá natural', 88.00, 36.20, 6, 3, false, null, null, true, 150
 FROM categorias WHERE nombre = 'Postres';
 
 INSERT INTO variantes_productos (producto_id, nombre, sku, precio_adicional, costo_adicional, stock)

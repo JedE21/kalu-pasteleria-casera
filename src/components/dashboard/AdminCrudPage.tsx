@@ -87,6 +87,15 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
     setOpen(true);
   }
 
+  function fieldValue(field: CrudField<T>) {
+    const value = (editing as Record<string, unknown> | null)?.[field.name];
+    if (!value) return '';
+    if (field.type !== 'datetime') return String(value);
+    const date = new Date(String(value));
+    if (Number.isNaN(date.getTime())) return String(value);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
+
   async function handleDelete(row: T) {
     if (!module.remove || !row.id) return;
     if (!supabaseConfig.isConfigured) {
@@ -136,13 +145,13 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
         <form className="grid gap-4" onSubmit={handleSubmit}>
           {module.fields.map((field) => (
             <Field key={field.name} label={field.label}>
-              {field.type === 'textarea' ? <Textarea name={field.name} required={field.required} readOnly={field.readonly} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')} /> : field.type === 'boolean' ? (
-                <Select name={field.name} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? true)}>
+              {field.type === 'textarea' ? <Textarea name={field.name} required={field.required} readOnly={field.readonly} defaultValue={fieldValue(field)} /> : field.type === 'boolean' ? (
+                <Select name={field.name} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? (field.name === 'oferta_activa' ? false : true))}>
                   <option value="true">Sí</option>
                   <option value="false">No</option>
                 </Select>
               ) : field.type === 'select' ? (
-                <Select name={field.name} required={field.required} defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')}>
+                <Select name={field.name} required={field.required} defaultValue={fieldValue(field)}>
                   <option value="">Seleccionar</option>
                   {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </Select>
@@ -154,7 +163,7 @@ export function AdminCrudPage<T extends CrudRow>({ module }: { module: CrudModul
                   inputMode={field.type === 'number' ? field.inputMode ?? 'decimal' : undefined}
                   required={field.required}
                   readOnly={field.readonly}
-                  defaultValue={String((editing as Record<string, unknown> | null)?.[field.name] ?? '')}
+                  defaultValue={fieldValue(field)}
                 />
               )}
             </Field>

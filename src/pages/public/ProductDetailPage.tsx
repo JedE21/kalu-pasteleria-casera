@@ -9,6 +9,7 @@ import { officialWhatsapp } from '../../config/kaluCatalog';
 import { useCart } from '../../context/CartContext';
 import { useCatalogoPublico } from '../../hooks/useCatalogoPublico';
 import { soles, whatsappLink } from '../../lib/utils';
+import { OfferCountdown } from '../../components/public/OfferCountdown';
 
 export function ProductDetailPage() {
   const { id = '' } = useParams();
@@ -20,6 +21,8 @@ export function ProductDetailPage() {
   if (!product) return <main className="mx-auto max-w-7xl px-4 py-10"><EmptyState title="Producto no encontrado" /></main>;
 
   const agotado = product.stock <= 0;
+  const tieneOferta = Boolean(product.ofertaActiva && product.ofertaPrecio !== null && product.ofertaFechaFin);
+  const precioVisible = tieneOferta ? product.ofertaPrecio : product.precio;
 
   function add() {
     if (!product) return;
@@ -43,13 +46,18 @@ export function ProductDetailPage() {
           <div className="flex flex-wrap gap-2">
             <Badge tone="warning">{product.categoria}</Badge>
             {product.promoCuchareable ? <Badge tone="success">Participa en promo cuchareables</Badge> : null}
+            {tieneOferta ? <Badge tone="danger">Oferta por tiempo limitado</Badge> : null}
             {product.id === 'cuch-pistacho' ? <Badge tone="danger">No aplica a promo</Badge> : null}
             {agotado ? <Badge tone="danger">Agotado</Badge> : null}
           </div>
           <h1 className="m-0 mt-3 font-display text-5xl text-morado dark:text-lila">{product.nombre}</h1>
           <p className="mt-4 text-lg leading-8 text-chocolate/75 dark:text-crema/75">{product.descripcion}</p>
         </div>
-        <strong className="text-3xl text-ciruela dark:text-crema">{product.precio === null ? 'Precio segun diseno' : soles(product.precio)}</strong>
+        <div className="grid gap-1">
+          {tieneOferta && product.precio !== null ? <span className="text-lg font-bold text-chocolate/45 line-through dark:text-crema/45">{soles(product.precio)}</span> : null}
+          <strong className="text-3xl text-ciruela dark:text-crema">{precioVisible === null ? 'Precio segun diseno' : soles(precioVisible ?? 0)}</strong>
+        </div>
+        {tieneOferta && product.ofertaFechaFin ? <OfferCountdown fechaFin={product.ofertaFechaFin} /> : null}
         <p className="m-0 text-base font-bold text-chocolate/75 dark:text-crema/75">Stock disponible: {product.stock} {product.stock === 1 ? 'unidad' : 'unidades'}</p>
         <Card>
           <CardContent>
